@@ -1,0 +1,25 @@
+# Secrets — ne jamais commiter
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+venv/
+.venv/
+
+# Fichiers générés
+proposition_*.pptx
+
+# Prompts personnalisés (config locale)
+custom_prompts.json
+
+# Fichiers clients Excel — données confidentielles
+*.xlsx
+
+# Ancien script CLI
+propale_depuis_excel_v3.py
+
+# macOS
+.DS_Store
