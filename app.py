@@ -235,6 +235,12 @@ st.markdown("""
     }
     .stProgress > div > div { background-color: #1a3a6e; }
     footer, #MainMenu { visibility: hidden; }
+
+    /* Masquer le bouton Fork / lien GitHub */
+    .stDeployButton { display: none !important; }
+    [data-testid="stToolbarActions"] { display: none !important; }
+    .viewerBadge_container__r5tak { display: none !important; }
+    .viewerBadge_link__qRIco { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
