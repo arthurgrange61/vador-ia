@@ -474,7 +474,6 @@ with st.sidebar:
             BALISES_IA,
             charger_prompts_personnalises,
             sauvegarder_prompts_personnalises,
-            est_balise_custom,
         )
 
         custom_prompts = charger_prompts_personnalises()
