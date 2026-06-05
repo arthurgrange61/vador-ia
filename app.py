@@ -385,8 +385,8 @@ for key, default in [
     ("tag_index",        None),
     ("history_stack",    None),
     ("slide_toggles",    None),
-    ("mode_saisie",      "texte"),
-    ("auto_generer",     False),
+    ("questionnaire_actif", False),
+    ("auto_generer",        False),
 ]:
     if key not in st.session_state:
         st.session_state[key] = default
@@ -750,55 +750,28 @@ with chat_col:
 # ── Interactions ─────────────────────────────────────────────
 if st.session_state.resume is None:
 
-    # ── Sélecteur de mode ─────────────────────────────────────
     with chat_col:
-        st.markdown("**Comment souhaitez-vous saisir les informations ?**")
-        m1, m2, _ = st.columns([1, 1, 2])
-        with m1:
-            if st.button(
-                "✍️ Texte libre",
-                use_container_width=True,
-                type="primary" if st.session_state.mode_saisie == "texte" else "secondary",
-                key="btn_mode_texte",
-            ):
-                st.session_state.mode_saisie = "texte"
-                st.rerun()
-        with m2:
-            if st.button(
-                "📋 Questionnaire",
-                use_container_width=True,
-                type="primary" if st.session_state.mode_saisie == "questionnaire" else "secondary",
-                key="btn_mode_quest",
-            ):
-                st.session_state.mode_saisie = "questionnaire"
-                st.rerun()
-
-    # ── Mode texte libre ──────────────────────────────────────
-    if st.session_state.mode_saisie == "texte":
-        if prompt := st.chat_input("Décrivez votre mission ici..."):
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            st.session_state.resume = prompt
-            st.session_state.messages.append({
-                "role": "assistant",
-                "content": (
-                    f"Parfait ! Résumé reçu ({len(prompt)} caractères). "
-                    f"{uploaded_count} DET(s) chargé(s).\n\n"
-                    "Cliquez sur **Générer la propale** pour lancer."
-                ),
-            })
+        # ── Toggle questionnaire ──────────────────────────────
+        quest_on = st.toggle(
+            "📋 Activer le questionnaire guidé",
+            value=st.session_state.questionnaire_actif,
+            key="tgl_questionnaire",
+            help="Combinez le questionnaire structuré et vos notes libres pour un brief plus complet.",
+        )
+        if quest_on != st.session_state.questionnaire_actif:
+            st.session_state.questionnaire_actif = quest_on
             st.rerun()
 
-    # ── Mode questionnaire ────────────────────────────────────
-    else:
-        st.markdown("---")
-        st.caption("ℹ️ Seules les informations que vous connaissez sont nécessaires — l'IA complète le reste ou marque [À compléter].")
+    # ── Questionnaire (si activé) ─────────────────────────────
+    if st.session_state.questionnaire_actif:
+        with chat_col:
+            st.caption("ℹ️ Seules les informations que vous connaissez sont nécessaires — l'IA complète le reste.")
 
         with st.form("questionnaire_form", border=False):
             for section in QUESTIONNAIRE_SECTIONS:
                 st.markdown(f"#### {section['titre']}")
-                # Répartir en 2 colonnes les champs courts, pleine largeur pour les textareas
-                short_qs  = [q for q in section["questions"] if q["type"] != "textarea"]
-                long_qs   = [q for q in section["questions"] if q["type"] == "textarea"]
+                short_qs = [q for q in section["questions"] if q["type"] != "textarea"]
+                long_qs  = [q for q in section["questions"] if q["type"] == "textarea"]
 
                 if short_qs:
                     pairs = [short_qs[i:i+2] for i in range(0, len(short_qs), 2)]
@@ -817,6 +790,14 @@ if st.session_state.resume is None:
                 st.markdown("")  # espacement
 
             st.markdown("---")
+            st.markdown("#### ✍️ Informations complémentaires *(optionnel)*")
+            texte_libre_form = st.text_area(
+                "Ajoutez ici tout ce qui ne rentre pas dans les cases ci-dessus.",
+                placeholder="Ex : contexte particulier, contraintes budgétaires, remarques spécifiques…",
+                height=100,
+                key="q_texte_libre_complementaire",
+            )
+            st.markdown("")
             submitted = st.form_submit_button(
                 "🚀 Générer la propale", type="primary", use_container_width=True
             )
@@ -827,7 +808,12 @@ if st.session_state.resume is None:
                 for section in QUESTIONNAIRE_SECTIONS
                 for q in section["questions"]
             }
-            brief = construire_brief_depuis_questionnaire(data)
+            brief_quest = construire_brief_depuis_questionnaire(data)
+            texte_compl = st.session_state.get("q_texte_libre_complementaire", "").strip()
+            brief = brief_quest
+            if texte_compl:
+                brief += "\n\n=== INFORMATIONS COMPLÉMENTAIRES ===\n" + texte_compl
+
             sections_remplies = sum(
                 1 for section in QUESTIONNAIRE_SECTIONS
                 if any(
@@ -836,16 +822,35 @@ if st.session_state.resume is None:
                     for q in section["questions"]
                 )
             )
+            label_msg = f"📋 Questionnaire complété ({sections_remplies}/9 sections)"
+            if texte_compl:
+                label_msg += " + texte complémentaire"
             st.session_state.resume = brief
-            st.session_state.messages.append({"role": "user", "content": f"📋 Questionnaire complété ({sections_remplies}/9 sections remplies)"})
+            st.session_state.messages.append({"role": "user", "content": label_msg})
             st.session_state.messages.append({
                 "role": "assistant",
                 "content": (
-                    f"Questionnaire reçu — {sections_remplies} section(s) renseignée(s). "
+                    f"Questionnaire reçu — {sections_remplies} section(s) renseignée(s)"
+                    + (", avec notes complémentaires" if texte_compl else "") + ". "
                     f"{uploaded_count} DET(s) chargé(s). Génération en cours…"
                 ),
             })
             st.session_state.auto_generer = True
+            st.rerun()
+
+    # ── Texte libre (toujours disponible) ─────────────────────
+    if not st.session_state.questionnaire_actif:
+        if prompt := st.chat_input("Décrivez votre mission ici..."):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            st.session_state.resume = prompt
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": (
+                    f"Parfait ! Résumé reçu ({len(prompt)} caractères). "
+                    f"{uploaded_count} DET(s) chargé(s).\n\n"
+                    "Cliquez sur **Générer la propale** pour lancer."
+                ),
+            })
             st.rerun()
 
 elif st.session_state.result is None:
@@ -871,6 +876,7 @@ elif st.session_state.result is None:
                 for k in ["resume", "result", "images", "slide_idx", "all_replacements",
                           "template_path", "modif_messages", "history_stack", "auto_generer"]:
                     st.session_state[k] = None if k not in ("slide_idx", "auto_generer") else (0 if k == "slide_idx" else False)
+                st.session_state.questionnaire_actif = False
                 st.session_state.messages = st.session_state.messages[:1]
                 st.rerun()
 
@@ -881,6 +887,7 @@ else:
         if st.button("🔄 Nouvelle propale", use_container_width=True):
             for k in ["resume", "result", "images", "slide_idx", "history_stack"]:
                 st.session_state[k] = None if k != "slide_idx" else 0
+            st.session_state.questionnaire_actif = False
             st.session_state.messages = st.session_state.messages[:1]
             st.rerun()
 
