@@ -474,25 +474,47 @@ with st.sidebar:
             BALISES_IA,
             charger_prompts_personnalises,
             sauvegarder_prompts_personnalises,
+            est_balise_custom,
         )
 
         custom_prompts = charger_prompts_personnalises()
-        nb_custom = len(custom_prompts)
-        if nb_custom:
-            st.caption(f"✏️ {nb_custom} prompt(s) personnalisé(s) actif(s)")
+
+        # Balises custom créées par l'utilisateur (absentes de BALISES_IA)
+        balises_custom_creees = [k for k in custom_prompts if k not in BALISES_IA]
+        nb_overrides = sum(1 for k in custom_prompts if k in BALISES_IA)
+        nb_new       = len(balises_custom_creees)
+
+        if nb_overrides or nb_new:
+            parts = []
+            if nb_overrides: parts.append(f"{nb_overrides} modifié(s)")
+            if nb_new:       parts.append(f"{nb_new} nouvelle(s)")
+            st.caption("✏️ " + ", ".join(parts))
         else:
             st.caption("Tous les prompts utilisent les valeurs par défaut.")
 
-        balise_choisie = st.selectbox(
+        # ── Sélecteur : balises existantes + nouvelles ────────
+        options_base   = list(BALISES_IA.keys())
+        options_custom = [f"★ {k}" for k in balises_custom_creees]
+        options_all    = options_base + options_custom
+        labels_all     = options_base + balises_custom_creees  # valeur réelle
+
+        balise_choisie_display = st.selectbox(
             "Balise à modifier",
-            options=list(BALISES_IA.keys()),
+            options=options_all,
             key="prompt_selectbox",
         )
+        # Résoudre l'index → clé réelle
+        sel_idx      = options_all.index(balise_choisie_display)
+        balise_choisie = labels_all[sel_idx]
 
-        is_custom   = balise_choisie in custom_prompts
-        prompt_actif = custom_prompts.get(balise_choisie, BALISES_IA[balise_choisie])
+        is_new_balise   = balise_choisie not in BALISES_IA
+        is_overridden   = balise_choisie in custom_prompts and not is_new_balise
+        prompt_defaut   = BALISES_IA.get(balise_choisie, "")
+        prompt_actif    = custom_prompts.get(balise_choisie, prompt_defaut)
 
-        if is_custom:
+        if is_new_balise:
+            st.caption("★ Balise personnalisée (créée par vous)")
+        elif is_overridden:
             st.caption("✏️ Prompt personnalisé — diffère du défaut")
         else:
             st.caption("📄 Prompt par défaut")
@@ -504,23 +526,75 @@ with st.sidebar:
             key=f"prompt_area_{balise_choisie}",
         )
 
-        col_save, col_reset = st.columns(2)
-        with col_save:
-            if st.button("💾 Sauvegarder", use_container_width=True, key="btn_save_prompt"):
-                custom_prompts[balise_choisie] = new_prompt
-                sauvegarder_prompts_personnalises(custom_prompts)
-                st.success("Sauvegardé !")
-        with col_reset:
-            if st.button(
-                "↺ Défaut",
-                use_container_width=True,
-                key="btn_reset_prompt",
-                disabled=not is_custom,
-                help="Restaurer le prompt d'origine",
-            ):
-                del custom_prompts[balise_choisie]
-                sauvegarder_prompts_personnalises(custom_prompts)
-                st.rerun()
+        if is_new_balise:
+            col_save, col_del = st.columns(2)
+            with col_save:
+                if st.button("💾 Sauvegarder", use_container_width=True, key="btn_save_prompt"):
+                    custom_prompts[balise_choisie] = new_prompt
+                    sauvegarder_prompts_personnalises(custom_prompts)
+                    st.success("Sauvegardé !")
+            with col_del:
+                if st.button("🗑️ Supprimer", use_container_width=True, key="btn_del_prompt",
+                             help="Supprimer définitivement cette balise"):
+                    del custom_prompts[balise_choisie]
+                    sauvegarder_prompts_personnalises(custom_prompts)
+                    st.rerun()
+        else:
+            col_save, col_reset = st.columns(2)
+            with col_save:
+                if st.button("💾 Sauvegarder", use_container_width=True, key="btn_save_prompt"):
+                    custom_prompts[balise_choisie] = new_prompt
+                    sauvegarder_prompts_personnalises(custom_prompts)
+                    st.success("Sauvegardé !")
+            with col_reset:
+                if st.button(
+                    "↺ Défaut",
+                    use_container_width=True,
+                    key="btn_reset_prompt",
+                    disabled=not is_overridden,
+                    help="Restaurer le prompt d'origine",
+                ):
+                    del custom_prompts[balise_choisie]
+                    sauvegarder_prompts_personnalises(custom_prompts)
+                    st.rerun()
+
+        # ── Ajouter une nouvelle balise ───────────────────────
+        st.markdown("---")
+        st.markdown("**➕ Ajouter une nouvelle balise**")
+        st.caption(
+            "Ajoutez `{{nom_balise}}` dans votre template PowerPoint, "
+            "puis créez-la ici avec son prompt."
+        )
+        new_key = st.text_input(
+            "Nom de la balise",
+            placeholder="ex : slogan_client  →  utilisé comme {{slogan_client}} dans le PPTX",
+            key="new_balise_key",
+        )
+        new_key_prompt = st.text_area(
+            "Prompt IA pour cette balise",
+            placeholder="Ex : Génère un slogan percutant de 5 mots pour le client.",
+            height=100,
+            key="new_balise_prompt",
+        )
+        new_key_clean = new_key.strip().replace("{{", "").replace("}}", "").replace(" ", "_")
+        key_valide  = bool(new_key_clean) and new_key_clean not in BALISES_IA
+        key_existe  = new_key_clean in custom_prompts
+        if new_key_clean and new_key_clean in BALISES_IA:
+            st.warning("⚠️ Ce nom existe déjà dans les balises par défaut. Utilisez le sélecteur ci-dessus pour la modifier.")
+        elif key_existe:
+            st.info(f"ℹ️ La balise `{{{{{new_key_clean}}}}}` existe déjà — sauvegarder écrasera son prompt.")
+
+        if st.button(
+            "➕ Créer la balise",
+            disabled=not (key_valide and new_key_prompt.strip()),
+            use_container_width=True,
+            key="btn_add_balise",
+            type="primary",
+        ):
+            custom_prompts[new_key_clean] = new_key_prompt.strip()
+            sauvegarder_prompts_personnalises(custom_prompts)
+            st.success(f"✅ Balise `{{{{{new_key_clean}}}}}` créée ! Ajoutez-la dans votre template PPTX.")
+            st.rerun()
 
     st.caption("Vador IA by MarketFlow © 2025")
 

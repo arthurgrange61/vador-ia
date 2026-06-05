@@ -39,13 +39,20 @@ def sauvegarder_prompts_personnalises(custom: dict):
 
 
 def get_balises_effectives() -> dict:
-    """Retourne BALISES_IA avec les éventuelles surcharges personnalisées."""
+    """
+    Retourne BALISES_IA fusionné avec les prompts personnalisés.
+    - Si la clé existe dans BALISES_IA  → surcharge le prompt par défaut.
+    - Si la clé n'existe PAS dans BALISES_IA → nouvelle balise ajoutée.
+    """
     custom = charger_prompts_personnalises()
     result = dict(BALISES_IA)
-    for key, val in custom.items():
-        if key in result:
-            result[key] = val
+    result.update(custom)   # override + nouvelles balises
     return result
+
+
+def est_balise_custom(key: str) -> bool:
+    """Retourne True si la balise est une création personnalisée (absente de BALISES_IA)."""
+    return key not in BALISES_IA
 
 SLIDES_PAR_OPTION = {
     2: ["slide45.xml", "slide46.xml", "slide47.xml"],
