@@ -683,8 +683,8 @@ def colorier_texte_remplace(
 ) -> tuple:
     """
     Colore précisément les runs remplacés (pas tout le paragraphe).
+    Gère : text frames, cellules de tableau, et group shapes (récursif).
     Place l'exposant [N] juste avant le run remplacé.
-    Splitte le run si le texte template et la valeur sont dans le même run.
     Retourne (pptx_bytes_coloré, tag_index) où tag_index = {numéro: "{{tag}}"}
     """
     from pptx import Presentation
@@ -695,45 +695,62 @@ def colorier_texte_remplace(
     A_NS   = 'http://schemas.openxmlformats.org/drawingml/2006/main'
     TAG_RE = _re.compile(r'\{\{([^}]+)\}\}')
 
-    # ── Étape 1 : lire le template, indexer les runs qui contiennent des tags ──
-    # Structure : (s_i, sh_i, p_i) → [(run_idx, [tags_dans_ce_run]), ...]
+    # ── Itérateur récursif : yields (location_key, paragraph) ──────────────
+    # Couvre text frames, tableaux, et group shapes imbriqués.
+    def iter_paras(slide, s_i):
+        def process_shape(shape, path):
+            # Group shape : itérer les enfants récursivement
+            if hasattr(shape, 'shapes'):
+                for c_i, child in enumerate(shape.shapes):
+                    yield from process_shape(child, path + (c_i,))
+            # Text frame classique
+            elif shape.has_text_frame:
+                for p_i, para in enumerate(shape.text_frame.paragraphs):
+                    yield (s_i, path, 'tf', p_i), para
+            # Tableau
+            elif shape.has_table:
+                for r_i, row in enumerate(shape.table.rows):
+                    for c_i, cell in enumerate(row.cells):
+                        for p_i, para in enumerate(cell.text_frame.paragraphs):
+                            yield (s_i, path, 'tbl', r_i, c_i, p_i), para
+
+        for sh_i, shape in enumerate(slide.shapes):
+            yield from process_shape(shape, (sh_i,))
+
+    # ── Étape 1 : lire le template, indexer les paragraphes contenant des tags ──
     tagged_runs: dict = {}
 
     prs_tmpl = Presentation(template_path)
     for s_i, slide in enumerate(prs_tmpl.slides):
-        for sh_i, shape in enumerate(slide.shapes):
-            if not shape.has_text_frame:
-                continue
-            for p_i, para in enumerate(shape.text_frame.paragraphs):
-                run_info = []
-                tmpl_run_texts = []
-                for r_i, run in enumerate(para.runs):
-                    tmpl_run_texts.append(run.text)
-                    raw_tags = TAG_RE.findall(run.text)
-                    found = list(dict.fromkeys(
-                        "{{" + t + "}}" for t in raw_tags
-                        if "{{" + t + "}}" in replacements
-                    ))
-                    if found:
-                        run_info.append((r_i, found))
+        for key, para in iter_paras(slide, s_i):
+            run_info       = []
+            tmpl_run_texts = []
+            for r_i, run in enumerate(para.runs):
+                tmpl_run_texts.append(run.text)
+                raw_tags = TAG_RE.findall(run.text)
+                found = list(dict.fromkeys(
+                    "{{" + t + "}}" for t in raw_tags
+                    if "{{" + t + "}}" in replacements
+                ))
+                if found:
+                    run_info.append((r_i, found))
 
-                if not run_info:
-                    # Vérifier le cas fragmenté : tag éclaté sur plusieurs runs
-                    full_text = "".join(tmpl_run_texts)
-                    frag_tags = list(dict.fromkeys(
-                        "{{" + t + "}}" for t in TAG_RE.findall(full_text)
-                        if "{{" + t + "}}" in replacements
-                        and not any("{{" + t + "}}" in rt for rt in tmpl_run_texts)
-                    ))
-                    if frag_tags:
-                        # Tag fragmenté → tout le paragraphe est "remplacé"
-                        run_info = [(-1, frag_tags)]   # -1 = marqueur "fragmenté"
+            if not run_info:
+                # Tag éclaté sur plusieurs runs (fragmentation XML)
+                full_text = "".join(tmpl_run_texts)
+                frag_tags = list(dict.fromkeys(
+                    "{{" + t + "}}" for t in TAG_RE.findall(full_text)
+                    if "{{" + t + "}}" in replacements
+                    and not any("{{" + t + "}}" in rt for rt in tmpl_run_texts)
+                ))
+                if frag_tags:
+                    run_info = [(-1, frag_tags)]  # -1 = marqueur "fragmenté"
 
-                if run_info:
-                    tagged_runs[(s_i, sh_i, p_i)] = {
-                        'run_info':      run_info,
-                        'tmpl_texts':    tmpl_run_texts,
-                    }
+            if run_info:
+                tagged_runs[key] = {
+                    'run_info':   run_info,
+                    'tmpl_texts': tmpl_run_texts,
+                }
 
     # ── Étape 2 : numérotation par ordre d'apparition ──────────────────────
     tag_to_num: dict = {}
@@ -765,7 +782,6 @@ def colorier_texte_remplace(
         return r
 
     def colorier_rpr(r_elem: etree._Element):
-        """Ajoute la couleur verte au <a:rPr> du run."""
         rPr = r_elem.find(f'{{{A_NS}}}rPr')
         if rPr is None:
             rPr = etree.Element(f'{{{A_NS}}}rPr')
@@ -779,136 +795,118 @@ def colorier_texte_remplace(
         clr.set('val', hex_color)
 
     def remplacer_run_par_split(p_elem, r_elem, text, val, num):
-        """
-        Remplace r_elem dans p_elem par [prefix_run?][exposant][run_vert][suffix_run?].
-        Utilisé quand le run contient du texte template ET la valeur remplacée.
-        """
         idx = text.find(val) if val else -1
         if idx == -1:
-            # Valeur introuvable (ex: [À COMPLÉTER] absent) → colorier tout le run
             colorier_rpr(r_elem)
             r_idx = list(p_elem).index(r_elem)
             p_elem.insert(r_idx, creer_expose(num))
             return
-
         new_elems = []
         if idx > 0:
             r_pre = _copy.deepcopy(r_elem)
             r_pre.find(f'{{{A_NS}}}t').text = text[:idx]
             new_elems.append(r_pre)
-
         new_elems.append(creer_expose(num))
-
         r_val = _copy.deepcopy(r_elem)
         r_val.find(f'{{{A_NS}}}t').text = val
         colorier_rpr(r_val)
         new_elems.append(r_val)
-
         suffix = text[idx + len(val):]
         if suffix:
             r_suf = _copy.deepcopy(r_elem)
             r_suf.find(f'{{{A_NS}}}t').text = suffix
             new_elems.append(r_suf)
-
         r_idx = list(p_elem).index(r_elem)
         p_elem.remove(r_elem)
         for k, elem in enumerate(new_elems):
             p_elem.insert(r_idx + k, elem)
 
+    def colorier_para(para, key):
+        """Applique la coloration à un paragraphe du PPTX généré."""
+        info      = tagged_runs[key]
+        run_info  = info['run_info']
+        tmpl_txts = info['tmpl_texts']
+        gen_runs  = list(para.runs)
+        p_elem    = para._p
+
+        # ── Cas fragmenté (run_idx == -1) ──────────────────────────────────
+        if run_info[0][0] == -1:
+            tags_frag = run_info[0][1]
+            for g_run in list(para.runs):
+                run_text = g_run.text
+                if not run_text:
+                    continue
+                entries = sorted(
+                    [(run_text.find(replacements.get(tag, "")), tag)
+                     for tag in tags_frag
+                     if replacements.get(tag, "") and replacements[tag] in run_text],
+                    key=lambda x: x[0]
+                )
+                if not entries:
+                    if run_text.strip():
+                        g_run.font.color.rgb = RGBColor(
+                            int(hex_color[:2], 16),
+                            int(hex_color[2:4], 16),
+                            int(hex_color[4:], 16),
+                        )
+                    continue
+                cursor    = 0
+                new_elems = []
+                for pos, tag in entries:
+                    val = replacements[tag]
+                    if pos > cursor:
+                        r_pre = _copy.deepcopy(g_run._r)
+                        r_pre.find(f'{{{A_NS}}}t').text = run_text[cursor:pos]
+                        new_elems.append(r_pre)
+                    new_elems.append(creer_expose(get_num(tag)))
+                    r_val = _copy.deepcopy(g_run._r)
+                    r_val.find(f'{{{A_NS}}}t').text = val
+                    colorier_rpr(r_val)
+                    new_elems.append(r_val)
+                    cursor = pos + len(val)
+                if cursor < len(run_text):
+                    r_suf = _copy.deepcopy(g_run._r)
+                    r_suf.find(f'{{{A_NS}}}t').text = run_text[cursor:]
+                    new_elems.append(r_suf)
+                r_idx = list(p_elem).index(g_run._r)
+                p_elem.remove(g_run._r)
+                for k, elem in enumerate(new_elems):
+                    p_elem.insert(r_idx + k, elem)
+            return
+
+        # ── Cas non fragmenté : traitement run par run ──────────────────────
+        for r_i, tags_in_run in run_info:
+            if r_i >= len(gen_runs):
+                continue
+            g_run     = gen_runs[r_i]
+            gen_text  = g_run.text
+            tmpl_text = tmpl_txts[r_i] if r_i < len(tmpl_txts) else ""
+            tmpl_sans_tags = TAG_RE.sub("", tmpl_text).strip()
+
+            for tag in tags_in_run:
+                val = replacements.get(tag, "")
+                num = get_num(tag)
+                if not tmpl_sans_tags:
+                    g_run.font.color.rgb = RGBColor(
+                        int(hex_color[:2], 16),
+                        int(hex_color[2:4], 16),
+                        int(hex_color[4:], 16),
+                    )
+                    r_idx = list(p_elem).index(g_run._r)
+                    p_elem.insert(r_idx, creer_expose(num))
+                else:
+                    remplacer_run_par_split(p_elem, g_run._r, gen_text, val, num)
+                break
+
     # ── Étape 3 : annoter le PPTX généré ───────────────────────────────────
     prs = Presentation(_io.BytesIO(pptx_bytes))
     for s_i, slide in enumerate(prs.slides):
-        for sh_i, shape in enumerate(slide.shapes):
-            if not shape.has_text_frame:
-                continue
-            for p_i, para in enumerate(shape.text_frame.paragraphs):
-                key = (s_i, sh_i, p_i)
-                if key not in tagged_runs:
-                    continue
-
-                info      = tagged_runs[key]
-                run_info  = info['run_info']
-                tmpl_txts = info['tmpl_texts']
-                gen_runs  = list(para.runs)
-                p_elem    = para._p
-
-                # ── Cas fragmenté (run_idx == -1) ──────────────────────────
-                if run_info[0][0] == -1:
-                    tags_frag = run_info[0][1]
-                    for g_run in list(para.runs):
-                        run_text = g_run.text
-                        if not run_text:
-                            continue
-                        # Trouver les valeurs dans ce run fusionné, par ordre d'apparition
-                        entries = sorted(
-                            [(run_text.find(replacements.get(tag, "")), tag)
-                             for tag in tags_frag
-                             if replacements.get(tag, "") and replacements[tag] in run_text],
-                            key=lambda x: x[0]
-                        )
-                        if not entries:
-                            # Aucune valeur trouvée → colorier tout
-                            if run_text.strip():
-                                g_run.font.color.rgb = RGBColor(
-                                    int(hex_color[:2], 16),
-                                    int(hex_color[2:4], 16),
-                                    int(hex_color[4:], 16),
-                                )
-                            continue
-
-                        cursor   = 0
-                        new_elems = []
-                        for pos, tag in entries:
-                            val = replacements[tag]
-                            if pos > cursor:
-                                r_pre = _copy.deepcopy(g_run._r)
-                                r_pre.find(f'{{{A_NS}}}t').text = run_text[cursor:pos]
-                                new_elems.append(r_pre)
-                            new_elems.append(creer_expose(get_num(tag)))
-                            r_val = _copy.deepcopy(g_run._r)
-                            r_val.find(f'{{{A_NS}}}t').text = val
-                            colorier_rpr(r_val)
-                            new_elems.append(r_val)
-                            cursor = pos + len(val)
-                        if cursor < len(run_text):
-                            r_suf = _copy.deepcopy(g_run._r)
-                            r_suf.find(f'{{{A_NS}}}t').text = run_text[cursor:]
-                            new_elems.append(r_suf)
-
-                        r_idx = list(p_elem).index(g_run._r)
-                        p_elem.remove(g_run._r)
-                        for k, elem in enumerate(new_elems):
-                            p_elem.insert(r_idx + k, elem)
-                    continue
-
-                # ── Cas non fragmenté : traitement run par run ─────────────
-                for r_i, tags_in_run in run_info:
-                    if r_i >= len(gen_runs):
-                        continue
-                    g_run    = gen_runs[r_i]
-                    gen_text = g_run.text
-                    tmpl_text = tmpl_txts[r_i] if r_i < len(tmpl_txts) else ""
-
-                    # Le run template était UNIQUEMENT le tag (pas de texte mélangé)
-                    tmpl_sans_tags = TAG_RE.sub("", tmpl_text).strip()
-
-                    for tag in tags_in_run:
-                        val = replacements.get(tag, "")
-                        num = get_num(tag)
-
-                        if not tmpl_sans_tags:
-                            # Run = tag seul → colorier le run entier + exposant avant
-                            g_run.font.color.rgb = RGBColor(
-                                int(hex_color[:2], 16),
-                                int(hex_color[2:4], 16),
-                                int(hex_color[4:], 16),
-                            )
-                            r_idx = list(p_elem).index(g_run._r)
-                            p_elem.insert(r_idx, creer_expose(num))
-                        else:
-                            # Run mélange texte template + valeur → split
-                            remplacer_run_par_split(p_elem, g_run._r, gen_text, val, num)
-                        break  # un seul tag principal par run
+        for key, para in iter_paras(slide, s_i):
+            if key in tagged_runs:
+                try:
+                    colorier_para(para, key)
+                except Exception:
+                    pass  # Ne jamais planter la génération pour une erreur de coloration
 
     tag_index = {num: tag for tag, num in tag_to_num.items()}
     out = _io.BytesIO()
