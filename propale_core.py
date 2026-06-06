@@ -351,7 +351,7 @@ Marge brute           : {round(data['marge_brute_pct'] * 100, 1)}%
 
 BALISES_IA = {
     "titre_etude":          "Titre court de l'étude (ex: Étude de marché — Secteur X).",
-    "contexte_global":      "FRAGMENT. Dénomination courte du client pour usage contractuel après 'ci-après dénommé'. Réponds UNIQUEMENT par 'le Client' (toujours, sans exception). Exemple de rendu attendu dans la phrase : 'Monsieur Dupont, ci-après dénommé le Client'.",
+    "contexte_global":      "Tu écriras un texte de 3 lignes qui explique le contexte global de l'étude (que veut le client pourquoi, dans quel contexte ...) tu dois absolument commencer le texte par (le client...); à la fin de ce paragraphe tu décriras le contexte du marché, avec par exemple la demande, la valorisation du marché ... Tu devras mettre exactement deux chiffre pour prouver cela et avec leurs source  ",
     "objet_final_etude":    "80 mots environ sur l'objectif final de l'étude. La phrase commence directement APRÈS 'le client souhaite', donc commence par un verbe à l'infinitif. Développe en expliquant concrètement les résultats attendus, les décisions que l'étude permettra de prendre, et la valeur apportée à l'entreprise cliente.",
     "obj_etudede":          "FRAGMENT. Tu complètes la phrase '...afin de connaître [TA RÉPONSE]'. ATTENTION : NE RÉPÈTE PAS 'afin de connaître' dans ta réponse. Écris directement ce qui suit ce fragment. Ex: 'le marché de la cosmétique bio en France et identifier les opportunités de croissance'. Sans majuscule initiale, sans point final.",
     "objectif_principal":   "1 phrase impactante résumant l'objectif principal. 20 mots max.",
