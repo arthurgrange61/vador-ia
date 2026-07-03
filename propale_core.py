@@ -351,8 +351,8 @@ Marge brute           : {round(data['marge_brute_pct'] * 100, 1)}%
 
 BALISES_IA = {
     "titre_etude":          "Titre court de l'étude (ex: Étude de marché — Secteur X).",
-    "contexte_global":      "FRAGMENT. Dénomination courte du client pour usage contractuel après 'ci-après dénommé'. Réponds UNIQUEMENT par 'le Client', sans rien d'autre.",
-    "objet_final_etude":    "80 mots environ sur l'objectif final de l'étude. La phrase commence directement APRÈS 'le client souhaite', donc commence par un verbe à l'infinitif. Développe en expliquant concrètement les résultats attendus, les décisions que l'étude permettra de prendre, et la valeur apportée à l'entreprise cliente.",
+    "contexte_marche":      "Paragraphe de 3 à 4 phrases, sur la slide 'CONTEXTE ET ENJEUX'. Structure imposée : (1) commence OBLIGATOIREMENT par 'Le client' et explique en 1-2 phrases ce que veut le client et dans quel contexte. (2) Puis décris le contexte du marché concerné (dynamique, demande, tendances). (3) Appuie-toi sur EXACTEMENT deux statistiques de marché chiffrées, chacune suivie de sa source entre parenthèses. Utilise des chiffres réalistes et généraux sur le secteur (taille du marché, croissance annuelle, nombre d'acteurs, etc.) avec des sources plausibles (ex: '(Xerfi, 2024)', '(INSEE, 2023)', '(Statista, 2024)'). Rédige un paragraphe fluide et professionnel, sans titre, sans puces.",
+    "objet_final_etude":    "FRAGMENT de ~60 mots. Ta réponse s'affiche JUSTE APRÈS les mots 'le client souhaite' déjà présents dans la phrase. Tu dois donc commencer DIRECTEMENT par un verbe à l'infinitif. NE RÉPÈTE JAMAIS 'le client souhaite' au début. Ex de bonne réponse : 'évaluer la viabilité de son projet et identifier les leviers de croissance...'. Développe les résultats attendus et la valeur apportée. Sans majuscule initiale.",
     "obj_etudede":          "FRAGMENT de phrase s'insérant après 'afin de connaître'. Exemples de rendu attendu : 'le marché de la restauration rapide en Île-de-France et les attentes des consommateurs' ou 'les habitudes d'achat des ménages normands concernant les produits bio'. NE commence PAS ta réponse par 'afin de connaître'. Commence directement par l'article (le, la, les, l') ou le nom. Sans majuscule, sans point final.",
     "objectif_principal":   "1 phrase impactante résumant l'objectif principal. 20 mots max.",
     "sous_objun":           "35 à 45 mots. Rédigé en phrase(s) complète(s). Décris le 1er sous-objectif de l'étude avec des détails concrets (ce qu'on cherche à mesurer, comprendre ou analyser). Titre distinct des deux autres sous-objectifs.",
@@ -363,9 +363,9 @@ BALISES_IA = {
     "tps_questionnaire":    "FRAGMENT. Complète 'durée comprise entre...'. Ex: '5 et 7 minutes'.",
     "nb_question":          "FRAGMENT. Complète 'au maximum de...'. Ex: '15 questions dont 12 fermées'.",
     "obj_etudetr":          "FRAGMENT. Complète 'de préciser...'. Ex: 'de préciser les attentes des consommateurs quant à l'offre de service'. Sans majuscule, sans point final.",
-    "secteur":              "FRAGMENT. Secteur d'activité PRÉCÉDÉ de l'article approprié (la/le/l'), car il s'insère après 'une analyse précise de'. Ex: 'la restauration rapide', 'l'immobilier locatif', 'la boulangerie artisanale'.",
+    "secteur":              "FRAGMENT s'insérant après 'une analyse précise du secteur'. Donne SOIT un adjectif de secteur ('immobilier', 'bancaire', 'automobile', 'cosmétique'), SOIT un complément introduit par de la/du/de l' ('de la restauration rapide', 'de la grande distribution'). Sans majuscule, sans point final. Ne répète PAS le mot 'secteur'.",
     "produit_service":      "FRAGMENT. NOM PROPRE UNIQUEMENT du produit ou service étudié. Exemples : 'Proper', 'iPhone', 'Netflix'. N'ajoute AUCUN mot générique ('solution', 'produit', 'service', article, etc.). Juste le nom propre.",
-    "marche_pot":           "Fais un paragraphe entier selon ce modèle : L'étude documentaire permet de définir le marché potentiel / réaliser un diagnostic de l'offre déjà présente dans le secteur de (personnaliser avec le secteur et le besoin précis du client). Elle repose sur la réalisation d'un tour d'horizon des dernières informations disponibles sur le marché analysé. Ainsi, nous réaliserons au préalable une analyse précise de l'état et des tendances du marché de [renseigner le secteur ciblé] ainsi que sa situation à/en [préciser la ville/région/pays/monde].",
+    "marche_pot":           "Rédige un paragraphe fluide et professionnel de 3-4 phrases décrivant l'étude documentaire du marché. Explique qu'elle permet de définir le marché potentiel et de réaliser un diagnostic de l'offre existante dans le secteur du client. Précise qu'elle repose sur un tour d'horizon des dernières informations disponibles, et annonce une analyse de l'état et des tendances du marché ainsi que de sa situation géographique. Adapte au secteur et à la zone du brief. AUCUN crochet, AUCune parenthèse d'instruction, AUCun placeholder dans ta réponse.",
     "est_client":           "FRAGMENT. Estimation du marché potentiel (chiffre ou fourchette).",
     "concu_direct":         "FRAGMENT. 2 ou 3 concurrents directs majeurs opérant dans la zone géographique et le secteur du projet. OBLIGATOIRE : cite des noms réels basés sur tes connaissances du secteur même si non mentionnés dans le brief. N'écris JAMAIS '[À COMPLÉTER]' pour cette balise. Ex: 'Darty, Boulanger, Fnac'.",
     "concu_indi":           "FRAGMENT. 2 ou 3 concurrents indirects opérant dans la zone et le secteur. OBLIGATOIRE : cite des noms réels basés sur tes connaissances même si non mentionnés dans le brief. N'écris JAMAIS '[À COMPLÉTER]' pour cette balise. Ex: 'Amazon, Cdiscount, LeBonCoin'.",
@@ -384,13 +384,13 @@ BALISES_IA = {
     "satis_globale":        "FRAGMENT. Complète 'La satisfaction globale [ta réponse]'. En 1 phrase courte, explique la satisfaction globale de la cible concernant la solution/produit/service du client. Ex: 'vis-à-vis de la solution de livraison proposée, notamment en termes de délais et de fiabilité'. Sans majuscule initiale.",
     "besoinetatt":          "FRAGMENT. Complète 'Les besoins et les attentes [ta réponse]'. En 1 phrase courte, décris les besoins et attentes de la cible vis-à-vis du produit/service. Ex: 'des consommateurs concernant l'offre en termes de praticité, prix et qualité perçue'. Sans majuscule initiale.",
     "avis_etude":           "FRAGMENT. Complète '...quant à...'. Reformule les objectifs de l'étude sous forme d'avis/opinions à recueillir. Ex: 'l'offre de service proposée et son positionnement sur le marché'.",
-    "besoin_client":        "2 à 3 phrases selon ce modèle : Ce guide permettra d'orienter la discussion sur la satisfaction/les attentes/les besoins des clients/potentiels consommateurs quant à [préciser le produit/service]. Développe en expliquant les thèmes spécifiques abordés (qualité, prix, usage, amélioration souhaitée, etc.).Tu peux notamment reprends les sous objectif et les reformuler. ",
+    "besoin_client":        "Rédige 2 à 3 phrases fluides et professionnelles expliquant que le guide d'entretien permettra d'orienter la discussion sur la satisfaction, les attentes et les besoins des clients ou consommateurs potentiels concernant le produit ou service du client. Développe avec les thèmes spécifiques abordés (qualité, prix, usage, amélioration souhaitée). Tu peux reprendre et reformuler les sous-objectifs. AUCUN crochet, parenthèse d'instruction ni placeholder dans ta réponse.",
     "besoinclient":         "1 à 2 phrases décrivant le besoin principal du client pour cette étude. Explique clairement ce qu'il cherche à accomplir, résoudre ou améliorer grâce aux résultats de l'étude.",
     "obj_final_my":         "FRAGMENT. Complète 'mieux appréhender...'. Ex: 'mieux appréhender la qualité de l'accueil en point de vente'. Sans majuscule, sans point final.",
-    "obj_myst":             "FRAGMENT. En 1 phrase courte (sans majuscule initiale, sans point final), explique l'objectif majeur à atteindre via les visites mystères. La phrase s'insère dans le contexte 'Neoma Conseil réalisera des visites mystères afin de [ta réponse]'. Ex: 'évaluer la qualité de l'accueil et du conseil en point de vente et identifier les axes d'amélioration prioritaires'.",
+    "obj_myst":             "Phrase COMPLÈTE et autonome (commence par une majuscule, finit par un point). Décris l'objectif majeur des visites mystères pour ce projet. Ex: 'L'objectif principal de ces visites mystères est d'évaluer la qualité de l'accueil et du conseil en point de vente afin d'identifier les axes d'amélioration prioritaires.'",
     "produitouserv":        "FRAGMENT. Écris UNIQUEMENT le mot 'produit' ou le mot 'service' (selon ce dont il s'agit dans le brief). Rien d'autre, aucun autre mot.",
     "poste_concer":         "FRAGMENT. Type de contact/poste visé au sein des entreprises du listing. Complète la phrase '...contacts privilégiés au sein de ces entreprises...' Ex: '(directeurs marketing, responsables RH, gérants)'.",
-    "listing":              "Tu complètes ce paragraphe selon ce modèle: Neoma Conseil s'engage à réaliser un listing quantitatif et qualitatif d'entreprises spécialisées dans ... (à adapter) qui pourraient être à même de recourir au(x) service(s) de/d'utiliser le produit de/d'être intéressées par...",
+    "listing":              "Complète la phrase qui commence par 'Neoma Conseil s'engage à réaliser un listing quantitatif et qualitatif d'entreprises'. Ta réponse suit directement ce début et précise le type d'entreprises ciblées (adapté au secteur et au besoin du client), susceptibles d'être intéressées par le produit/service. Ex: 'spécialisées dans l'immobilier résidentiel, susceptibles de recourir à une solution de création de vidéos'. Sans placeholder ni '(à adapter)'.",
     "livrable":             "2 éléments MAXIMUM constituant le rapport final, séparés par des sauts de ligne (\\n). SANS tiret ni puce ni numérotation. Chaque élément est une courte phrase nominale. Ex: 'Analyse documentaire du secteur et des tendances\\nRésultats de l'enquête et recommandations stratégiques'. Adapte au type d'étude du brief.",
     "validite_date":        "Date de validité (3 mois après aujourd'hui). Format : JJ mois AAAA.",
     "quota_cat1_opt1":      "FRAGMENT. Quota catégorie 1 option 1. Juste le chiffre.",
@@ -454,6 +454,36 @@ MONTANTS_AVEC_LTR = [
     "montant_acompte_htde",  "montant_acompte_ttcde",  "montant_solde_htde",  "montant_solde_ttcde",
     "montant_acompte_httrois", "montant_acompte_ttctrois", "montant_solde_httrois", "montant_solde_ttctrois",
 ]
+
+
+# Amorces de phrase présentes dans le template : si l'IA les répète en tête
+# de sa réponse, on les retire pour éviter les doublons ('le client souhaite
+# le client souhaite …').
+AMORCES_REDONDANTES = {
+    "{{objet_final_etude}}": "le client souhaite",
+    "{{obj_etudede}}":       "afin de connaître",
+    "{{obj_etudetr}}":       "de préciser",
+    "{{obj_final_my}}":      "dans le but de",
+    "{{obj_etude}}":         "afin de",
+    "{{satis_globale}}":     "la satisfaction globale",
+    "{{besoinetatt}}":       "les besoins et les attentes",
+    "{{avis_etude}}":        "quant à",
+}
+
+
+def nettoyer_fragments(replacements: dict):
+    """Retire les amorces de phrase que l'IA aurait répétées, et corrige la
+    ponctuation résiduelle en tête de fragment."""
+    for tag, amorce in AMORCES_REDONDANTES.items():
+        val = replacements.get(tag)
+        if not val:
+            continue
+        # Retirer l'amorce répétée en tête (insensible à la casse/accents simples)
+        low = val.lstrip()
+        if low.lower().startswith(amorce.lower()):
+            val = low[len(amorce):].lstrip(" ,':")
+        # Nettoyer une éventuelle majuscule initiale parasite sur un fragment
+        replacements[tag] = val.strip()
 
 
 def parser_montant_fr(val: str):
@@ -1395,7 +1425,9 @@ def generer_propale(
             replacements_ia[upper_tag] = replacements_ia[upper_tag].upper()
 
     all_replacements = {**replacements_ia, **all_replacements}
-    all_replacements.setdefault("{{contexte_global}}", "le Client")
+
+    # Retirer les amorces de phrase répétées par l'IA ('le client souhaite le client souhaite…')
+    nettoyer_fragments(all_replacements)
 
     # Compléter les montants en toutes lettres ({{...ltr}}) depuis les montants numériques
     completer_montants_en_lettres(all_replacements)
