@@ -23,3 +23,6 @@ propale_depuis_excel_v3.py
 
 # macOS
 .DS_Store
+
+# Backups de template
+*.backup-*.pptx

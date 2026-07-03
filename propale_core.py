@@ -362,15 +362,14 @@ BALISES_IA = {
     "of_questionnaire":     "FRAGMENT. Complète 'Une [X]aine de questions à majorité fermées/ouvertes'. Déduis depuis le brief. Ex: 'Une vingtaine de questions à majorité fermées'.",
     "tps_questionnaire":    "FRAGMENT. Complète 'durée comprise entre...'. Ex: '5 et 7 minutes'.",
     "nb_question":          "FRAGMENT. Complète 'au maximum de...'. Ex: '15 questions dont 12 fermées'.",
-    "etude_quanti":         "Tu remplis le paragraphe avec les info correspondantes via ce modèle : L'étude quantitative permet d'évaluer le nombre de consommateurs/potentiels acheteurs... intéressés par le service/produit/concept/projet et d'identifier leur(s) besoin(s)/avis/opinions/profil-type. Préciser ici l'objectif final à atteindre via cette étude quantitative.",
     "obj_etudetr":          "FRAGMENT. Complète 'de préciser...'. Ex: 'de préciser les attentes des consommateurs quant à l'offre de service'. Sans majuscule, sans point final.",
-    "secteur":              "FRAGMENT. Nom du secteur d'activité.",
+    "secteur":              "FRAGMENT. Secteur d'activité PRÉCÉDÉ de l'article approprié (la/le/l'), car il s'insère après 'une analyse précise de'. Ex: 'la restauration rapide', 'l'immobilier locatif', 'la boulangerie artisanale'.",
     "produit_service":      "FRAGMENT. NOM PROPRE UNIQUEMENT du produit ou service étudié. Exemples : 'Proper', 'iPhone', 'Netflix'. N'ajoute AUCUN mot générique ('solution', 'produit', 'service', article, etc.). Juste le nom propre.",
     "marche_pot":           "Fais un paragraphe entier selon ce modèle : L'étude documentaire permet de définir le marché potentiel / réaliser un diagnostic de l'offre déjà présente dans le secteur de (personnaliser avec le secteur et le besoin précis du client). Elle repose sur la réalisation d'un tour d'horizon des dernières informations disponibles sur le marché analysé. Ainsi, nous réaliserons au préalable une analyse précise de l'état et des tendances du marché de [renseigner le secteur ciblé] ainsi que sa situation à/en [préciser la ville/région/pays/monde].",
     "est_client":           "FRAGMENT. Estimation du marché potentiel (chiffre ou fourchette).",
     "concu_direct":         "FRAGMENT. 2 ou 3 concurrents directs majeurs opérant dans la zone géographique et le secteur du projet. OBLIGATOIRE : cite des noms réels basés sur tes connaissances du secteur même si non mentionnés dans le brief. N'écris JAMAIS '[À COMPLÉTER]' pour cette balise. Ex: 'Darty, Boulanger, Fnac'.",
     "concu_indi":           "FRAGMENT. 2 ou 3 concurrents indirects opérant dans la zone et le secteur. OBLIGATOIRE : cite des noms réels basés sur tes connaissances même si non mentionnés dans le brief. N'écris JAMAIS '[À COMPLÉTER]' pour cette balise. Ex: 'Amazon, Cdiscount, LeBonCoin'.",
-    "analyse_donnee":       "FRAGMENT. Complète 'une analyse précise de...'. Sans majuscule, sans point.",
+    "analyse_donnee":       "Phrase nominale autonome (encadré affiché parmi les objectifs) : 'Une analyse précise de [aspect spécifique à l'étude]'. Sois SPÉCIFIQUE au projet du brief, pas générique. Ex: 'Une analyse précise des comportements d'achat des consommateurs havrais'. Commence par une majuscule, sans point final.",
     "cible":                "FRAGMENT. Groupe nominal décrivant la cible visée (avec article). Ex: 'les ménages de la région Normandie'.",
     "zone_action":          "FRAGMENT. Zone géographique de l'étude. Ex: 'la région Île-de-France'.",
     "zone_passation":       "FRAGMENT. Zone de passation des questionnaires.",
@@ -379,11 +378,8 @@ BALISES_IA = {
     "justif_cible":         "1 phrase justifiant la pertinence de la cible choisie. Compléter la phrase : Le listing veillera à cibler",
     "cible_listing":        "FRAGMENT. Description courte de la cible pour le listing (ex: 'des responsables marketing de PME franciliennes'). UNE SEULE description sans format Option 1/Option 2.",
     "cible_ville":          "FRAGMENT. 3 exemples de villes représentatives de la zone d'action de l'étude, séparées par des virgules. Ex: 'Rouen, Caen et Le Havre'.",
-    "type_entre":           "FRAGMENT. Type de l'entreprise. Exemple: 'de l'entreprise de vente de vêtements de marque'.",
-    "type_rapport":         "FRAGMENT. Type d'étude, nom court. Ex: 'marché', 'consommateurs', 'faisabilité'. Déduis-le depuis le brief.",
     "ressource_com":        "15 mots max : Ressources de communication recommandées (journaux, magazines spécialisés, réseaux sociaux...).",
     "action_com":           "30 mots environ : Décris les principales actions de communication concrètes à mettre en place pour atteindre les objectifs de visibilité et de notoriété (ex: présence sur réseaux sociaux, partenariats médias, campagnes ciblées, relations presse...).",
-    "d_expertise":          "FRAGMENT. Axes de communication clés.",
     "obj_etude":            "FRAGMENT. Complète 'Afin de...'. Verbe infinitif.",
     "satis_globale":        "FRAGMENT. Complète 'La satisfaction globale [ta réponse]'. En 1 phrase courte, explique la satisfaction globale de la cible concernant la solution/produit/service du client. Ex: 'vis-à-vis de la solution de livraison proposée, notamment en termes de délais et de fiabilité'. Sans majuscule initiale.",
     "besoinetatt":          "FRAGMENT. Complète 'Les besoins et les attentes [ta réponse]'. En 1 phrase courte, décris les besoins et attentes de la cible vis-à-vis du produit/service. Ex: 'des consommateurs concernant l'offre en termes de praticité, prix et qualité perçue'. Sans majuscule initiale.",
@@ -427,36 +423,81 @@ BALISES_IA = {
     "intervenant":          "Prénom(s) des intervenants.",
     "nb_intervenants":      "Nombre total d'intervenants. Juste le chiffre.",
     "qualiteje":            "2 phrases décrivant les compétences et appétences du chef de projet en lien direct avec cette étude. Ex: 'Passionné par le secteur de la restauration, il dispose d'une expérience en étude de marché alimentaire. Sa maîtrise des outils d'analyse quantitative garantit des résultats fiables.'",
-    "montant_acompte_ht":   "Montant acompte HT. Ex: 1 250,00",
-    "montant_acompte_ttc":  "Montant acompte TTC. Ex: 1 500,00",
-    "montant_solde_ht":     "Montant solde HT.",
-    "montant_solde_ttc":    "Montant solde TTC.",
-    "duree_etude":          "Durée de l'étude. Ex: 8 semaines.",
     "nb_questionnaire":     "Nombre de questionnaires. Ex: 150.",
     "nb_questionnaire_min": "Nombre minimum de questionnaires.",
     "nb_questionnaire_max": "Nombre maximum de questionnaires.",
-    "montant_acompte_ht_opt2":   "Montant acompte HT option 2.",
-    "montant_acompte_ttc_opt2":  "Montant acompte TTC option 2.",
-    "montant_solde_ht_opt2":     "Montant solde HT option 2.",
-    "montant_solde_ttc_opt2":    "Montant solde TTC option 2.",
-    "duree_etude_opt2":          "Durée option 2.",
-    "nb_questionnaire_opt2":     "Nb questionnaires option 2.",
-    "nb_questionnaire_min_opt2": "Nb min questionnaires option 2.",
-    "nb_questionnaire_max_opt2": "Nb max questionnaires option 2.",
-    "montant_acompte_ht_opt3":   "Montant acompte HT option 3.",
-    "montant_acompte_ttc_opt3":  "Montant acompte TTC option 3.",
-    "montant_solde_ht_opt3":     "Montant solde HT option 3.",
-    "montant_solde_ttc_opt3":    "Montant solde TTC option 3.",
-    "duree_etude_opt3":          "Durée option 3.",
-    "nb_questionnaire_opt3":     "Nb questionnaires option 3.",
-    "nb_questionnaire_min_opt3": "Nb min questionnaires option 3.",
-    "nb_questionnaire_max_opt3": "Nb max questionnaires option 3.",
+    # ── Option 1 (noms alignés sur le template) ──
+    "montant_acompte_htun":   "Montant acompte HT option 1, format '1 250,00'. Si aucune donnée financière : [À COMPLÉTER].",
+    "montant_acompte_ttcun":  "Montant acompte TTC option 1, format '1 500,00'. Si aucune donnée : [À COMPLÉTER].",
+    "montant_solde_htun":     "Montant solde HT option 1, format '1 250,00'. Si aucune donnée : [À COMPLÉTER].",
+    "montant_solde_ttcun":    "Montant solde TTC option 1, format '1 500,00'. Si aucune donnée : [À COMPLÉTER].",
+    "Duree_etudeun":          "Durée de l'étude option 1. Ex: '8 semaines'.",
+    # ── Option 2 ──
+    "montant_acompte_htde":   "Montant acompte HT option 2, format '1 250,00'. Si aucune donnée : [À COMPLÉTER].",
+    "montant_acompte_ttcde":  "Montant acompte TTC option 2, format '1 500,00'. Si aucune donnée : [À COMPLÉTER].",
+    "montant_solde_htde":     "Montant solde HT option 2, format '1 250,00'. Si aucune donnée : [À COMPLÉTER].",
+    "montant_solde_ttcde":    "Montant solde TTC option 2, format '1 500,00'. Si aucune donnée : [À COMPLÉTER].",
+    "Duree_etudede":          "Durée de l'étude option 2. Ex: '10 semaines'.",
+    "nb_questionnairede":     "Nombre de questionnaires option 2. Juste le chiffre.",
+    # ── Option 3 ──
+    "montant_acompte_httrois":  "Montant acompte HT option 3, format '1 250,00'. Si aucune donnée : [À COMPLÉTER].",
+    "montant_acompte_ttctrois": "Montant acompte TTC option 3, format '1 500,00'. Si aucune donnée : [À COMPLÉTER].",
+    "montant_solde_httrois":    "Montant solde HT option 3, format '1 250,00'. Si aucune donnée : [À COMPLÉTER].",
+    "montant_solde_ttctrois":   "Montant solde TTC option 3, format '1 500,00'. Si aucune donnée : [À COMPLÉTER].",
+    "duree_etudetrois":         "Durée de l'étude option 3. Ex: '12 semaines'.",
+    "nb_questionnairetr":       "Nombre de questionnaires option 3. Juste le chiffre.",
 }
 
+# Balises montants dont la version "en lettres" ({{...ltr}}) est calculée automatiquement
+MONTANTS_AVEC_LTR = [
+    "montant_acompte_htun",  "montant_acompte_ttcun",  "montant_solde_htun",  "montant_solde_ttcun",
+    "montant_acompte_htde",  "montant_acompte_ttcde",  "montant_solde_htde",  "montant_solde_ttcde",
+    "montant_acompte_httrois", "montant_acompte_ttctrois", "montant_solde_httrois", "montant_solde_ttctrois",
+]
 
-def appeler_ia(brief: str, api_key: str, model: str = GROQ_MODEL) -> dict:
+
+def parser_montant_fr(val: str):
+    """Parse un montant français ('1 250,00', '1250', '2 500 €') → float, ou None."""
+    if not val:
+        return None
+    cleaned = re.sub(r'[^\d,\.]', '', str(val)).replace(',', '.')
+    # Gérer '1.250.00' résiduel : garder le dernier point comme séparateur décimal
+    parts = cleaned.split('.')
+    if len(parts) > 2:
+        cleaned = ''.join(parts[:-1]) + '.' + parts[-1]
+    try:
+        return float(cleaned) if cleaned else None
+    except ValueError:
+        return None
+
+
+def completer_montants_en_lettres(replacements: dict):
+    """Complète les balises {{...ltr}} manquantes depuis leurs montants numériques."""
+    for base in MONTANTS_AVEC_LTR:
+        tag, ltr_tag = "{{" + base + "}}", "{{" + base + "ltr}}"
+        if ltr_tag in replacements or tag not in replacements:
+            continue
+        val = replacements[tag]
+        if "[À COMPLÉTER]" in str(val):
+            replacements[ltr_tag] = "[À COMPLÉTER]"
+            continue
+        num = parser_montant_fr(val)
+        if num is not None and num > 0:
+            replacements[ltr_tag] = montant_en_lettres(num)
+
+
+def appeler_ia(brief: str, api_key: str, model: str = GROQ_MODEL, contextes: dict = None) -> dict:
     balises = get_balises_effectives()
-    lines = [f"{{{{{k}}}}}: {v}" for k, v in balises.items()]
+    contextes = contextes or {}
+    lines = []
+    for k, v in balises.items():
+        tag  = "{{" + k + "}}"
+        line = f"{tag}: {v}"
+        # Pour les fragments, donner le contexte d'insertion réel du template
+        ctx = contextes.get(tag)
+        if ctx and "FRAGMENT" in v:
+            line += f" [Contexte: {ctx}]"
+        lines.append(line)
 
     prompt = f"""Tu es un consultant expert chez Neoma Conseil, spécialisé dans les propositions commerciales.
 
@@ -503,7 +544,7 @@ BRIEF :
         model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1,
-        max_tokens=5000,
+        max_tokens=4000,
     )
     raw = resp.choices[0].message.content
 
@@ -915,6 +956,147 @@ def colorier_texte_remplace(
 
 
 # ============================================================
+# === DÉFRAGMENTATION DES BALISES ============================
+# ============================================================
+
+def defragmenter_pptx(pptx_bytes: bytes) -> bytes:
+    """
+    Fusionne les runs XML consécutifs lorsqu'une balise {{...}} est éclatée
+    sur plusieurs runs (artefact d'export Google Slides / correcteur ortho).
+    Après ce traitement, chaque balise tient dans UN SEUL run, ce qui rend
+    le remplacement et la coloration fiables à 100 %.
+    """
+    from lxml import etree
+    import io as _io
+
+    A_NS   = 'http://schemas.openxmlformats.org/drawingml/2006/main'
+    R_TAG  = f'{{{A_NS}}}r'
+    T_TAG  = f'{{{A_NS}}}t'
+    P_TAG  = f'{{{A_NS}}}p'
+    TAG_SPAN_RE = re.compile(r'\{\{[^{}]+\}\}')
+
+    def defragmenter_paragraphe(p_elem) -> bool:
+        """Fusionne les runs couvrant une balise fragmentée. Retourne True si modifié."""
+        modified = False
+        for _ in range(50):  # garde-fou anti-boucle infinie
+            runs  = [c for c in p_elem if c.tag == R_TAG]
+            texts = []
+            for r in runs:
+                t = r.find(T_TAG)
+                texts.append(t.text if (t is not None and t.text) else '')
+            concat = ''.join(texts)
+            if '{{' not in concat:
+                return modified
+
+            # Offsets de début de chaque run dans le texte concaténé
+            offsets = []
+            pos = 0
+            for txt in texts:
+                offsets.append(pos)
+                pos += len(txt)
+
+            def run_index(char_pos):
+                for i in range(len(offsets) - 1, -1, -1):
+                    if offsets[i] <= char_pos:
+                        return i
+                return 0
+
+            # Chercher la première balise à cheval sur plusieurs runs
+            fusion = None
+            for m in TAG_SPAN_RE.finditer(concat):
+                i = run_index(m.start())
+                j = run_index(m.end() - 1)
+                if j > i:
+                    fusion = (i, j)
+                    break
+            if fusion is None:
+                return modified
+
+            i, j = fusion
+            # Vérifier que les runs i..j sont des siblings contigus (pas de <a:br> entre eux)
+            children = list(p_elem)
+            idx_i = children.index(runs[i])
+            idx_j = children.index(runs[j])
+            segment = children[idx_i:idx_j + 1]
+            if any(c.tag != R_TAG for c in segment):
+                return modified  # séparés par un saut de ligne → ne pas fusionner
+
+            # Fusion : concaténer les textes dans le run i, supprimer les runs i+1..j
+            merged_text = ''.join(texts[i:j + 1])
+            t_elem = runs[i].find(T_TAG)
+            if t_elem is None:
+                t_elem = etree.SubElement(runs[i], T_TAG)
+            t_elem.text = merged_text
+            t_elem.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+            for r in runs[i + 1:j + 1]:
+                p_elem.remove(r)
+            modified = True
+        return modified
+
+    src = _io.BytesIO(pptx_bytes)
+    out = _io.BytesIO()
+    with zipfile.ZipFile(src, 'r') as zin, \
+         zipfile.ZipFile(out, 'w', compression=zipfile.ZIP_DEFLATED) as zout:
+        for item in zin.infolist():
+            data = zin.read(item.filename)
+            if re.match(r'ppt/slides/slide\d+\.xml$', item.filename):
+                try:
+                    root = etree.fromstring(data)
+                    changed = False
+                    for p_elem in root.iter(P_TAG):
+                        if defragmenter_paragraphe(p_elem):
+                            changed = True
+                    if changed:
+                        data = etree.tostring(root, xml_declaration=True,
+                                              encoding='UTF-8', standalone=True)
+                except Exception:
+                    pass  # en cas d'erreur, garder le XML original
+            zout.writestr(item, data)
+    return out.getvalue()
+
+
+def extraire_balises_template(template_path: str) -> set:
+    """Retourne l'ensemble des balises {{...}} présentes dans les slides du template."""
+    TAG_RE_LOCAL = re.compile(r'\{\{([^{}]+)\}\}')
+    tags = set()
+    with zipfile.ZipFile(template_path) as z:
+        for name in z.namelist():
+            if re.match(r'ppt/slides/slide\d+\.xml$', name):
+                content = z.read(name).decode('utf-8', errors='ignore')
+                flat = re.sub(r'<[^>]+>', '', content)
+                for t in TAG_RE_LOCAL.findall(flat):
+                    tags.add("{{" + t + "}}")
+    return tags
+
+
+def extraire_contextes_balises(template_path: str, fenetre: int = 5) -> dict:
+    """
+    Pour chaque balise du template, extrait quelques mots avant/après sa
+    première occurrence — donné à l'IA pour produire des fragments cohérents.
+    """
+    TAG_RE_LOCAL = re.compile(r'\{\{[^{}]+\}\}')
+    contextes = {}
+    with zipfile.ZipFile(template_path) as z:
+        for name in sorted(z.namelist()):
+            if not re.match(r'ppt/slides/slide\d+\.xml$', name):
+                continue
+            content = z.read(name).decode('utf-8', errors='ignore')
+            # Reconstituer le texte par paragraphe
+            for p_xml in re.findall(r'<a:p(?:\s[^>]*)?>.*?</a:p>', content, re.DOTALL):
+                texts = re.findall(r'<a:t[^>]*>(.*?)</a:t>', p_xml, re.DOTALL)
+                flat = ''.join(texts)
+                for m in TAG_RE_LOCAL.finditer(flat):
+                    tag = m.group(0)
+                    if tag in contextes:
+                        continue
+                    avant = ' '.join(flat[:m.start()].split()[-fenetre:])
+                    apres = ' '.join(flat[m.end():].split()[:fenetre])
+                    if avant or apres:
+                        contextes[tag] = f"…{avant} ⟦BALISE⟧ {apres}…"
+    return contextes
+
+
+# ============================================================
 # === SUPPRESSION DE SLIDES ==================================
 # ============================================================
 
@@ -1200,10 +1382,11 @@ def generer_propale(
         if questio_vals:
             all_replacements["{{questioprinter}}"] = formater_ou_multi(questio_vals)
 
-    # Appel IA
+    # Appel IA (avec contexte d'insertion extrait du template pour les fragments)
     progress(2, 5, "Génération du contenu rédactionnel (IA)...")
     brief = construire_brief_depuis_resume(resume, [d for _, d in dets_valides])
-    replacements_ia = appeler_ia(brief, api_key)
+    contextes = extraire_contextes_balises(template_path)
+    replacements_ia = appeler_ia(brief, api_key, contextes=contextes)
 
     if "{{titre_etude}}" in replacements_ia:
         replacements_ia["{{titre_etude}}"] = replacements_ia["{{titre_etude}}"].upper()
@@ -1212,7 +1395,16 @@ def generer_propale(
             replacements_ia[upper_tag] = replacements_ia[upper_tag].upper()
 
     all_replacements = {**replacements_ia, **all_replacements}
-    all_replacements.setdefault("{{contexte_global}}", resume[:200] + "...")
+    all_replacements.setdefault("{{contexte_global}}", "le Client")
+
+    # Compléter les montants en toutes lettres ({{...ltr}}) depuis les montants numériques
+    completer_montants_en_lettres(all_replacements)
+
+    # ── Filet de sécurité : AUCUNE balise brute ne doit rester dans le rendu ──
+    # Toute balise du template non couverte reçoit [À COMPLÉTER] (colorée + numérotée,
+    # donc modifiable via le chat comme les autres).
+    for tag in extraire_balises_template(template_path):
+        all_replacements.setdefault(tag, "[À COMPLÉTER]")
 
     # Génération du PPTX
     progress(3, 5, "Injection des données dans le PowerPoint...")
@@ -1249,6 +1441,11 @@ def generer_propale(
         nom_client = det1["nom_entreprise"]
     elif dets_valides:
         nom_client = dets_valides[0][1].get("nom_entreprise", "")
+    if not nom_client:
+        # Utiliser le nom d'entreprise généré par l'IA s'il est exploitable
+        ia_nom = all_replacements.get("{{nom_entreprise}}", "")
+        if ia_nom and "[À COMPLÉTER]" not in ia_nom:
+            nom_client = ia_nom[:60]
     if not nom_client:
         mots = re.findall(r'\w+', resume)[:3]
         nom_client = " ".join(mots) if mots else "client"

@@ -464,9 +464,11 @@ with st.sidebar:
             help="Le fichier est sauvegardé sur disque et reste actif après redémarrage."
         )
         if new_tpl is not None:
+            from propale_core import defragmenter_pptx
             tpl_dest = Path(__file__).parent / "template 2.pptx"
-            tpl_dest.write_bytes(new_tpl.read())
-            st.success("✅ Template sauvegardé — actif dès la prochaine génération.")
+            with st.spinner("Optimisation du template..."):
+                tpl_dest.write_bytes(defragmenter_pptx(new_tpl.read()))
+            st.success("✅ Template optimisé et sauvegardé — actif dès la prochaine génération.")
 
     st.divider()
     with st.expander("✏️ Personnaliser les prompts IA"):
