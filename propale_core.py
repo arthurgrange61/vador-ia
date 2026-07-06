@@ -1127,6 +1127,75 @@ def extraire_contextes_balises(template_path: str, fenetre: int = 5) -> dict:
 
 
 # ============================================================
+# === AJUSTEMENT HAUTEUR DES BOÎTES AUTO-FIT =================
+# ============================================================
+
+def ajuster_hauteur_autofit(pptx_bytes: bytes) -> bytes:
+    """
+    Agrandit les boîtes de texte 'auto-ajustées' (spAutoFit) dont la hauteur
+    stockée est trop petite pour le contenu généré.
+
+    Pourquoi : LibreOffice recalcule spAutoFit à l'ouverture (donc l'aperçu est
+    correct), mais PowerPoint fait confiance à la hauteur stockée et masque le
+    texte qui déborde. On pré-dimensionne donc les boîtes pour garantir un
+    rendu identique dans tous les logiciels. Plafonné pour ne pas chevaucher la
+    shape située en dessous.
+    """
+    from pptx import Presentation
+    from pptx.enum.text import MSO_AUTO_SIZE
+    import io as _io
+
+    prs = Presentation(_io.BytesIO(pptx_bytes))
+    SH    = prs.slide_height
+    MARGE = int(0.15 * 360000)
+
+    for slide in prs.slides:
+        boxes = [s for s in slide.shapes
+                 if s.has_text_frame and s.top is not None and s.height is not None
+                 and s.width and s.left is not None]
+        for shape in boxes:
+            tf = shape.text_frame
+            try:
+                if tf.auto_size != MSO_AUTO_SIZE.SHAPE_TO_FIT_TEXT:
+                    continue
+            except Exception:
+                continue
+
+            needed = 0
+            for para in tf.paragraphs:
+                sz = 14
+                for run in para.runs:
+                    if run.font.size:
+                        sz = run.font.size.pt
+                        break
+                char_w = sz * 0.5 * 12700
+                cpl    = max(1, int(shape.width / char_w))
+                txt    = para.text
+                nlines = max(1, -(-len(txt) // cpl)) if txt.strip() else 1
+                needed += int(nlines * sz * 1.25 * 12700)
+            needed += MARGE
+
+            if needed <= shape.height:
+                continue
+
+            cap = SH - shape.top - MARGE
+            for other in boxes:
+                if other is shape or other.top <= shape.top:
+                    continue
+                # chevauchement horizontal ?
+                if other.left < shape.left + shape.width and shape.left < other.left + other.width:
+                    cap = min(cap, other.top - shape.top - MARGE)
+
+            new_h = min(needed, cap)
+            if new_h > shape.height:
+                shape.height = new_h
+
+    out = _io.BytesIO()
+    prs.save(out)
+    return out.getvalue()
+
+
+# ============================================================
 # === SUPPRESSION DE SLIDES ==================================
 # ============================================================
 
@@ -1180,7 +1249,7 @@ def regenerer_depuis_replacements(all_replacements: dict, template_path: str) ->
         with open(output_path, 'rb') as f:
             result = f.read()
         os.unlink(output_path)
-        return result
+        return ajuster_hauteur_autofit(result)
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
 
@@ -1466,6 +1535,9 @@ def generer_propale(
 
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
+
+    # Pré-dimensionner les boîtes auto-ajustées pour un rendu identique dans PowerPoint
+    pptx_bytes = ajuster_hauteur_autofit(pptx_bytes)
 
     missed_tags = set(all_replacements.keys()) - replaced
     nom_client = ""
