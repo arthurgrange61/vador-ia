@@ -351,7 +351,7 @@ Marge brute           : {round(data['marge_brute_pct'] * 100, 1)}%
 
 BALISES_IA = {
     "titre_etude":          "Titre court de l'étude (ex: Étude de marché — Secteur X).",
-    "contexte_marche":      "Paragraphe de 3 à 4 phrases, sur la slide 'CONTEXTE ET ENJEUX'. Structure imposée : (1) commence OBLIGATOIREMENT par 'Le client' et explique en 1-2 phrases ce que veut le client et dans quel contexte. (2) Puis décris le contexte du marché concerné (dynamique, demande, tendances). (3) Appuie-toi sur EXACTEMENT deux statistiques de marché chiffrées, chacune suivie de sa source entre parenthèses. Utilise des chiffres réalistes et généraux sur le secteur (taille du marché, croissance annuelle, nombre d'acteurs, etc.) avec des sources plausibles (ex: '(Xerfi, 2024)', '(INSEE, 2023)', '(Statista, 2024)'). Rédige un paragraphe fluide et professionnel, sans titre, sans puces.",
+    "contexte_marche":      "Paragraphe de contexte pour la slide 'CONTEXTE ET ENJEUX'. CONTRAINTE DE LONGUEUR STRICTE : maximum 4 phrases et 75 mots au total (statistiques incluses). Structure : (1) commence OBLIGATOIREMENT par 'Le client' et explique brièvement ce qu'il veut et dans quel contexte de marché. (2) Intègre EXACTEMENT deux statistiques de marché chiffrées, chacune suivie de sa source entre parenthèses — chiffres réalistes et généraux sur le secteur (taille du marché, croissance annuelle…) avec sources plausibles (ex: '(Xerfi, 2024)', '(INSEE, 2023)', '(Statista, 2024)'). Paragraphe fluide et professionnel, sans titre, sans puces. Ne dépasse JAMAIS 75 mots.",
     "objet_final_etude":    "FRAGMENT de ~60 mots. Ta réponse s'affiche JUSTE APRÈS les mots 'le client souhaite' déjà présents dans la phrase. Tu dois donc commencer DIRECTEMENT par un verbe à l'infinitif. NE RÉPÈTE JAMAIS 'le client souhaite' au début. Ex de bonne réponse : 'évaluer la viabilité de son projet et identifier les leviers de croissance...'. Développe les résultats attendus et la valeur apportée. Sans majuscule initiale.",
     "obj_etudede":          "FRAGMENT de phrase s'insérant après 'afin de connaître'. Exemples de rendu attendu : 'le marché de la restauration rapide en Île-de-France et les attentes des consommateurs' ou 'les habitudes d'achat des ménages normands concernant les produits bio'. NE commence PAS ta réponse par 'afin de connaître'. Commence directement par l'article (le, la, les, l') ou le nom. Sans majuscule, sans point final.",
     "objectif_principal":   "1 phrase impactante résumant l'objectif principal. 20 mots max.",
@@ -1075,6 +1075,14 @@ def defragmenter_pptx(pptx_bytes: bytes) -> bytes:
                     changed = False
                     for p_elem in root.iter(P_TAG):
                         if defragmenter_paragraphe(p_elem):
+                            changed = True
+                        # Normaliser l'ordre OOXML : endParaRPr doit être le
+                        # DERNIER enfant du paragraphe (sinon PowerPoint ignore
+                        # les runs placés après — texte invisible au téléchargement).
+                        end = p_elem.find(f'{{{A_NS}}}endParaRPr')
+                        if end is not None and list(p_elem)[-1] is not end:
+                            p_elem.remove(end)
+                            p_elem.append(end)
                             changed = True
                     if changed:
                         data = etree.tostring(root, xml_declaration=True,
