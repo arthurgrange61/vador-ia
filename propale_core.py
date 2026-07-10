@@ -134,9 +134,6 @@ def montant_en_lettres(valeur: float) -> str:
         centimes = 0
 
     n = euros
-    if n == 0 and centimes == 0:
-        return 'zéro euro'
-
     millions, reste = divmod(n, 1_000_000)
     milliers, unite = divmod(reste, 1000)
 
@@ -148,11 +145,13 @@ def montant_en_lettres(valeur: float) -> str:
     if unite > 0:
         parts.append(trois_chiffres(unite))
 
-    result = ' '.join(parts) + (' euro' if n == 1 else ' euros')
-    if n == 0:
-        result = 'zéro euro'
+    result = 'zéro euro' if n == 0 else ' '.join(parts) + (' euro' if n == 1 else ' euros')
+
+    # Les centimes sont toujours écrits explicitement, y compris à zéro.
     if centimes > 0:
-        result += ' et ' + deux_chiffres(centimes) + ' centimes'
+        result += ' et ' + deux_chiffres(centimes) + ' centime' + ('' if centimes == 1 else 's')
+    else:
+        result += ' et zéro centime'
     return result
 
 
@@ -355,9 +354,9 @@ BALISES_IA = {
     "objet_final_etude":    "FRAGMENT DÉVELOPPÉ de 70 à 90 mots (3 à 4 lignes). Ta réponse s'affiche JUSTE APRÈS les mots 'le client souhaite' déjà présents dans la phrase. Commence DIRECTEMENT par un verbe à l'infinitif, NE RÉPÈTE JAMAIS 'le client souhaite'. Développe en détail : (1) l'objectif concret visé, (2) les résultats attendus de l'étude, (3) les décisions stratégiques que ces résultats permettront de prendre, et (4) la valeur apportée à l'entreprise. Enchaîne plusieurs propositions reliées par des virgules et 'afin de'/'ainsi que'. Ex: 'évaluer la satisfaction de ses abonnés et identifier les leviers de rétention, afin de comprendre les facteurs de fidélisation, d'orienter ses décisions stratégiques et d'optimiser durablement son offre pour renforcer sa position sur le marché'. Sans majuscule initiale, sans point final.",
     "obj_etudede":          "FRAGMENT de phrase s'insérant après 'afin de connaître'. Exemples de rendu attendu : 'le marché de la restauration rapide en Île-de-France et les attentes des consommateurs' ou 'les habitudes d'achat des ménages normands concernant les produits bio'. NE commence PAS ta réponse par 'afin de connaître'. Commence directement par l'article (le, la, les, l') ou le nom. Sans majuscule, sans point final.",
     "objectif_principal":   "1 phrase impactante résumant l'objectif principal. 20 mots max.",
-    "sous_objun":           "35 à 45 mots. Rédigé en phrase(s) complète(s). Décris le 1er sous-objectif de l'étude avec des détails concrets (ce qu'on cherche à mesurer, comprendre ou analyser). Titre distinct des deux autres sous-objectifs.",
-    "sous_objdeux":         "35 à 45 mots. Rédigé en phrase(s) complète(s). Décris le 2ème sous-objectif. Distinct du 1er et du 3ème. Aborde un aspect complémentaire (comportements d'achat, perception, attentes, profil de la cible, etc.).",
-    "sous_objtrois":        "35 à 45 mots. Rédigé en phrase(s) complète(s). Décris le 3ème sous-objectif. Distinct des deux premiers. Aborde un aspect prospectif ou opérationnel (recommandations, positionnement, opportunités, fidélisation, etc.).",
+    "sous_objun":           "35 à 45 mots, phrase(s) complète(s). PRIORITÉ ABSOLUE : si le brief fournit des sous-objectifs explicites (liste numérotée, ex: '1. ... 2. ... 3. ...'), REFORMULE FIDÈLEMENT le 1er sous-objectif listé — reprends son thème et son contenu exact, ne change pas le sujet, développe-le juste en phrase(s) complète(s). Si aucun sous-objectif n'est fourni dans le brief, invente-en un cohérent avec l'étude (ce qu'on cherche à mesurer, comprendre ou analyser).",
+    "sous_objdeux":         "35 à 45 mots, phrase(s) complète(s). PRIORITÉ ABSOLUE : si le brief fournit des sous-objectifs explicites numérotés, REFORMULE FIDÈLEMENT le 2ème sous-objectif listé — reprends son thème exact sans le changer. Si aucun sous-objectif n'est fourni, invente-en un distinct du 1er et du 3ème (comportements d'achat, perception, attentes, profil de la cible, etc.).",
+    "sous_objtrois":        "35 à 45 mots, phrase(s) complète(s). PRIORITÉ ABSOLUE : si le brief fournit des sous-objectifs explicites numérotés, REFORMULE FIDÈLEMENT le 3ème sous-objectif listé — reprends son thème exact sans le changer. Si aucun sous-objectif n'est fourni, invente-en un distinct des deux premiers (recommandations, positionnement, opportunités, fidélisation, etc.).",
     "info_questionnaire":   "FRAGMENT. Complète 'Une [X]aine de données à majorité quantitative/qualitative'. Déduis le type depuis le brief. Ex: 'Une vingtaine de données à majorité quantitative'.",
     "of_questionnaire":     "FRAGMENT. Complète 'Une [X]aine de questions à majorité fermées/ouvertes'. Déduis depuis le brief. Ex: 'Une vingtaine de questions à majorité fermées'.",
     "tps_questionnaire":    "FRAGMENT. Complète 'durée comprise entre...'. Ex: '5 et 7 minutes'.",
@@ -502,17 +501,25 @@ def parser_montant_fr(val: str):
 
 
 def completer_montants_en_lettres(replacements: dict):
-    """Complète les balises {{...ltr}} manquantes depuis leurs montants numériques."""
+    """
+    Normalise le format numérique des montants (toujours 2 décimales, ex:
+    '800,00' même pour un montant rond) et complète les balises {{...ltr}}
+    manquantes depuis ces montants numériques.
+    """
     for base in MONTANTS_AVEC_LTR:
         tag, ltr_tag = "{{" + base + "}}", "{{" + base + "ltr}}"
-        if ltr_tag in replacements or tag not in replacements:
+        if tag not in replacements:
             continue
         val = replacements[tag]
         if "[À COMPLÉTER]" in str(val):
-            replacements[ltr_tag] = "[À COMPLÉTER]"
+            replacements.setdefault(ltr_tag, "[À COMPLÉTER]")
             continue
         num = parser_montant_fr(val)
-        if num is not None and num > 0:
+        if num is None or num <= 0:
+            continue
+        # Garantir 2 décimales même si l'IA a répondu un montant rond ('800' -> '800,00')
+        replacements[tag] = formater_montant_decimal(num)
+        if ltr_tag not in replacements:
             replacements[ltr_tag] = montant_en_lettres(num)
 
 
