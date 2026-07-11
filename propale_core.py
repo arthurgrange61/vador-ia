@@ -350,21 +350,21 @@ Marge brute           : {round(data['marge_brute_pct'] * 100, 1)}%
 
 BALISES_IA = {
     "titre_etude":          "Titre court de l'étude (ex: Étude de marché — Secteur X).",
-    "contexte_marche":      "Paragraphe de contexte pour la slide 'CONTEXTE ET ENJEUX'. CONTRAINTE DE LONGUEUR STRICTE : maximum 4 phrases et 75 mots au total (statistiques incluses). Structure : (1) commence OBLIGATOIREMENT par 'Le client' et explique brièvement ce qu'il veut et dans quel contexte de marché. (2) Intègre EXACTEMENT deux statistiques de marché chiffrées, chacune suivie de sa source entre parenthèses — chiffres réalistes et généraux sur le secteur (taille du marché, croissance annuelle…) avec sources plausibles (ex: '(Xerfi, 2024)', '(INSEE, 2023)', '(Statista, 2024)'). Paragraphe fluide et professionnel, sans titre, sans puces. Ne dépasse JAMAIS 75 mots.",
-    "objet_final_etude":    "FRAGMENT DÉVELOPPÉ de 70 à 90 mots (3 à 4 lignes). Ta réponse s'affiche JUSTE APRÈS les mots 'le client souhaite' déjà présents dans la phrase. Commence DIRECTEMENT par un verbe à l'infinitif, NE RÉPÈTE JAMAIS 'le client souhaite'. Développe en détail : (1) l'objectif concret visé, (2) les résultats attendus de l'étude, (3) les décisions stratégiques que ces résultats permettront de prendre, et (4) la valeur apportée à l'entreprise. Enchaîne plusieurs propositions reliées par des virgules et 'afin de'/'ainsi que'. Ex: 'évaluer la satisfaction de ses abonnés et identifier les leviers de rétention, afin de comprendre les facteurs de fidélisation, d'orienter ses décisions stratégiques et d'optimiser durablement son offre pour renforcer sa position sur le marché'. Sans majuscule initiale, sans point final.",
-    "obj_etudede":          "FRAGMENT de phrase s'insérant après 'afin de connaître'. Exemples de rendu attendu : 'le marché de la restauration rapide en Île-de-France et les attentes des consommateurs' ou 'les habitudes d'achat des ménages normands concernant les produits bio'. NE commence PAS ta réponse par 'afin de connaître'. Commence directement par l'article (le, la, les, l') ou le nom. Sans majuscule, sans point final.",
+    "contexte_marche":      "Paragraphe slide 'CONTEXTE ET ENJEUX', MAX 4 phrases / 75 mots. Commence OBLIGATOIREMENT par 'Le client', explique brièvement son besoin et le contexte marché. Intègre EXACTEMENT 2 statistiques chiffrées réalistes avec source entre parenthèses (ex: '(Xerfi, 2024)', '(INSEE, 2023)'). Fluide, sans titre ni puces.",
+    "objet_final_etude":    "FRAGMENT 70-90 mots, s'affiche APRÈS 'le client souhaite'. Commence par un verbe infinitif, NE RÉPÈTE PAS 'le client souhaite'. Développe : objectif visé, résultats attendus, décisions permises, valeur apportée. Relie par virgules/'afin de'/'ainsi que'. Sans majuscule initiale, sans point final.",
+    "obj_etudede":          "FRAGMENT après 'afin de connaître'. Ex: 'le marché de la restauration rapide et les attentes des consommateurs'. Commence directement par l'article/nom, PAS par 'afin de connaître'. Sans majuscule, sans point final.",
     "objectif_principal":   "1 phrase impactante résumant l'objectif principal. 20 mots max.",
-    "sous_objun":           "35 à 45 mots, phrase(s) complète(s). PRIORITÉ ABSOLUE : si le brief fournit des sous-objectifs explicites (liste numérotée, ex: '1. ... 2. ... 3. ...'), REFORMULE FIDÈLEMENT le 1er sous-objectif listé — reprends son thème et son contenu exact, ne change pas le sujet, développe-le juste en phrase(s) complète(s). Si aucun sous-objectif n'est fourni dans le brief, invente-en un cohérent avec l'étude (ce qu'on cherche à mesurer, comprendre ou analyser).",
-    "sous_objdeux":         "35 à 45 mots, phrase(s) complète(s). PRIORITÉ ABSOLUE : si le brief fournit des sous-objectifs explicites numérotés, REFORMULE FIDÈLEMENT le 2ème sous-objectif listé — reprends son thème exact sans le changer. Si aucun sous-objectif n'est fourni, invente-en un distinct du 1er et du 3ème (comportements d'achat, perception, attentes, profil de la cible, etc.).",
-    "sous_objtrois":        "35 à 45 mots, phrase(s) complète(s). PRIORITÉ ABSOLUE : si le brief fournit des sous-objectifs explicites numérotés, REFORMULE FIDÈLEMENT le 3ème sous-objectif listé — reprends son thème exact sans le changer. Si aucun sous-objectif n'est fourni, invente-en un distinct des deux premiers (recommandations, positionnement, opportunités, fidélisation, etc.).",
+    "sous_objun":           "35-45 mots, phrase(s) complète(s). Si le brief liste des sous-objectifs numérotés (1. 2. 3.), REFORMULE FIDÈLEMENT le 1er — même thème, ne change rien. Sinon invente-en un cohérent (ce qu'on mesure/analyse).",
+    "sous_objdeux":         "35-45 mots. Si le brief liste des sous-objectifs numérotés, REFORMULE FIDÈLEMENT le 2ème — même thème. Sinon invente-en un distinct du 1er/3ème (comportements, perception, attentes).",
+    "sous_objtrois":        "35-45 mots. Si le brief liste des sous-objectifs numérotés, REFORMULE FIDÈLEMENT le 3ème — même thème. Sinon invente-en un distinct des deux premiers (recommandations, opportunités).",
     "info_questionnaire":   "FRAGMENT. Complète 'Une [X]aine de données à majorité quantitative/qualitative'. Déduis le type depuis le brief. Ex: 'Une vingtaine de données à majorité quantitative'.",
     "of_questionnaire":     "FRAGMENT. Complète 'Une [X]aine de questions à majorité fermées/ouvertes'. Déduis depuis le brief. Ex: 'Une vingtaine de questions à majorité fermées'.",
     "tps_questionnaire":    "FRAGMENT. Complète 'durée comprise entre...'. Ex: '5 et 7 minutes'.",
     "nb_question":          "FRAGMENT. Complète 'au maximum de...'. Ex: '15 questions dont 12 fermées'.",
     "obj_etudetr":          "FRAGMENT. Complète 'de préciser...'. Ex: 'de préciser les attentes des consommateurs quant à l'offre de service'. Sans majuscule, sans point final.",
-    "secteur":              "FRAGMENT s'insérant après 'une analyse précise du secteur'. Donne SOIT un adjectif de secteur ('immobilier', 'bancaire', 'automobile', 'cosmétique'), SOIT un complément introduit par de la/du/de l' ('de la restauration rapide', 'de la grande distribution'). Sans majuscule, sans point final. Ne répète PAS le mot 'secteur'.",
+    "secteur":              "FRAGMENT après 'une analyse précise du secteur'. Ex: 'immobilier', 'de la restauration rapide'. Sans majuscule, sans point final. Ne répète PAS 'secteur'.",
     "produit_service":      "FRAGMENT. NOM PROPRE UNIQUEMENT du produit ou service étudié. Exemples : 'Proper', 'iPhone', 'Netflix'. N'ajoute AUCUN mot générique ('solution', 'produit', 'service', article, etc.). Juste le nom propre.",
-    "marche_pot":           "Rédige un paragraphe fluide et professionnel de 3-4 phrases décrivant l'étude documentaire du marché. Explique qu'elle permet de définir le marché potentiel et de réaliser un diagnostic de l'offre existante dans le secteur du client. Précise qu'elle repose sur un tour d'horizon des dernières informations disponibles, et annonce une analyse de l'état et des tendances du marché ainsi que de sa situation géographique. Adapte au secteur et à la zone du brief. AUCUN crochet, AUCune parenthèse d'instruction, AUCun placeholder dans ta réponse.",
+    "marche_pot":           "Paragraphe fluide 3-4 phrases décrivant l'étude documentaire : définit le marché potentiel et diagnostique l'offre existante dans le secteur du client, via un tour d'horizon des informations disponibles, puis annonce une analyse des tendances du marché et de sa situation géographique. Adapte au secteur/zone du brief. Aucun crochet ni placeholder.",
     "est_client":           "FRAGMENT. Estimation du marché potentiel (chiffre ou fourchette).",
     "concu_direct":         "FRAGMENT. 2 ou 3 concurrents directs majeurs opérant dans la zone géographique et le secteur du projet. OBLIGATOIRE : cite des noms réels basés sur tes connaissances du secteur même si non mentionnés dans le brief. N'écris JAMAIS '[À COMPLÉTER]' pour cette balise. Ex: 'Darty, Boulanger, Fnac'.",
     "concu_indi":           "FRAGMENT. 2 ou 3 concurrents indirects opérant dans la zone et le secteur. OBLIGATOIRE : cite des noms réels basés sur tes connaissances même si non mentionnés dans le brief. N'écris JAMAIS '[À COMPLÉTER]' pour cette balise. Ex: 'Amazon, Cdiscount, LeBonCoin'.",
@@ -380,17 +380,17 @@ BALISES_IA = {
     "ressource_com":        "15 mots max : Ressources de communication recommandées (journaux, magazines spécialisés, réseaux sociaux...).",
     "action_com":           "30 mots environ : Décris les principales actions de communication concrètes à mettre en place pour atteindre les objectifs de visibilité et de notoriété (ex: présence sur réseaux sociaux, partenariats médias, campagnes ciblées, relations presse...).",
     "obj_etude":            "FRAGMENT. Complète 'Afin de...'. Verbe infinitif.",
-    "satis_globale":        "FRAGMENT. Complète 'La satisfaction globale [ta réponse]'. En 1 phrase courte, explique la satisfaction globale de la cible concernant la solution/produit/service du client. Ex: 'vis-à-vis de la solution de livraison proposée, notamment en termes de délais et de fiabilité'. Sans majuscule initiale.",
+    "satis_globale":        "FRAGMENT après 'La satisfaction globale'. 1 phrase courte sur la satisfaction de la cible vis-à-vis du produit/service. Ex: 'vis-à-vis de la solution proposée, en termes de délais et de fiabilité'. Sans majuscule initiale.",
     "besoinetatt":          "FRAGMENT. Complète 'Les besoins et les attentes [ta réponse]'. En 1 phrase courte, décris les besoins et attentes de la cible vis-à-vis du produit/service. Ex: 'des consommateurs concernant l'offre en termes de praticité, prix et qualité perçue'. Sans majuscule initiale.",
     "avis_etude":           "FRAGMENT. Complète '...quant à...'. Reformule les objectifs de l'étude sous forme d'avis/opinions à recueillir. Ex: 'l'offre de service proposée et son positionnement sur le marché'.",
-    "besoin_client":        "Rédige 2 à 3 phrases fluides et professionnelles expliquant que le guide d'entretien permettra d'orienter la discussion sur la satisfaction, les attentes et les besoins des clients ou consommateurs potentiels concernant le produit ou service du client. Développe avec les thèmes spécifiques abordés (qualité, prix, usage, amélioration souhaitée). Tu peux reprendre et reformuler les sous-objectifs. AUCUN crochet, parenthèse d'instruction ni placeholder dans ta réponse.",
+    "besoin_client":        "2-3 phrases fluides : le guide d'entretien oriente la discussion sur la satisfaction, attentes et besoins des clients/consommateurs concernant le produit/service. Développe les thèmes abordés (qualité, prix, usage). Tu peux reformuler les sous-objectifs. Aucun crochet ni placeholder.",
     "besoinclient":         "1 à 2 phrases décrivant le besoin principal du client pour cette étude. Explique clairement ce qu'il cherche à accomplir, résoudre ou améliorer grâce aux résultats de l'étude.",
     "obj_final_my":         "FRAGMENT. Complète 'mieux appréhender...'. Ex: 'mieux appréhender la qualité de l'accueil en point de vente'. Sans majuscule, sans point final.",
-    "obj_myst":             "Phrase COMPLÈTE et autonome (commence par une majuscule, finit par un point). Décris l'objectif majeur des visites mystères pour ce projet. Ex: 'L'objectif principal de ces visites mystères est d'évaluer la qualité de l'accueil et du conseil en point de vente afin d'identifier les axes d'amélioration prioritaires.'",
+    "obj_myst":             "Phrase complète et autonome (majuscule + point final). Décris l'objectif majeur des visites mystères. Ex: 'L'objectif principal est d'évaluer la qualité de l'accueil en point de vente.'",
     "produitouserv":        "FRAGMENT. Écris UNIQUEMENT le mot 'produit' ou le mot 'service' (selon ce dont il s'agit dans le brief). Rien d'autre, aucun autre mot.",
     "poste_concer":         "FRAGMENT. Type de contact/poste visé au sein des entreprises du listing. Complète la phrase '...contacts privilégiés au sein de ces entreprises...' Ex: '(directeurs marketing, responsables RH, gérants)'.",
-    "listing":              "Complète la phrase qui commence par 'Neoma Conseil s'engage à réaliser un listing quantitatif et qualitatif d'entreprises'. Ta réponse suit directement ce début et précise le type d'entreprises ciblées (adapté au secteur et au besoin du client), susceptibles d'être intéressées par le produit/service. Ex: 'spécialisées dans l'immobilier résidentiel, susceptibles de recourir à une solution de création de vidéos'. Sans placeholder ni '(à adapter)'.",
-    "livrable":             "2 éléments MAXIMUM constituant le rapport final, séparés par des sauts de ligne (\\n). SANS tiret ni puce ni numérotation. Chaque élément est une courte phrase nominale. Ex: 'Analyse documentaire du secteur et des tendances\\nRésultats de l'enquête et recommandations stratégiques'. Adapte au type d'étude du brief.",
+    "listing":              "Suit 'Neoma Conseil s'engage à réaliser un listing quantitatif et qualitatif d'entreprises'. Précise le type d'entreprises ciblées (secteur/besoin du client), intéressées par le produit/service. Ex: 'spécialisées dans l'immobilier résidentiel, susceptibles de recourir à une solution de création de vidéos'. Sans placeholder.",
+    "livrable":             "2 éléments MAX du rapport final, séparés par \\n, sans tiret/puce/numéro. Phrase nominale courte chacun. Ex: 'Analyse documentaire du secteur\\nRésultats et recommandations stratégiques'. Adapte au type d'étude.",
     "validite_date":        "Date de validité (3 mois après aujourd'hui). Format : JJ mois AAAA.",
     "quota_cat1_opt1":      "FRAGMENT. Quota catégorie 1 option 1. Juste le chiffre.",
     "quota_cat1_opt2":      "FRAGMENT. Quota catégorie 1 option 2. Juste le chiffre.",
@@ -537,37 +537,16 @@ def appeler_ia(brief: str, api_key: str, model: str = GROQ_MODEL, contextes: dic
         lines.append(line)
 
     prompt = f"""Tu es un consultant expert chez Neoma Conseil, spécialisé dans les propositions commerciales.
+Génère le contenu de chaque balise à partir du brief fourni.
 
-À partir du brief fourni, génère le contenu pour chaque balise.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RÈGLES ABSOLUES — RESPECTE-LES TOUTES :
-
-1. FORMAT STRICT : {{{{nom_balise}}}}: Contenu
-   → Une balise par ligne. Aucune ligne supplémentaire. Aucun markdown. Aucune explication.
-
-2. FRAGMENT = fragment de phrase : sans majuscule initiale, sans point final.
-
-3. RÉPONDS EXCLUSIVEMENT EN FRANÇAIS PROFESSIONNEL.
-
-4. ⚠️ ANTI-HALLUCINATION — RÈGLE LA PLUS IMPORTANTE :
-   Si l'information n'est PAS présente dans le brief (résumé ou DET), tu dois écrire
-   EXACTEMENT "[À COMPLÉTER]" comme valeur — N'INVENTE JAMAIS une information absente.
-   Exceptions : concu_direct et concu_indi → TOUJOURS citer des noms réels basés sur tes
-   connaissances du secteur, même si absent du brief.
-
-5. EXTRACTION RIGOUREUSE : Lis intégralement le résumé avant de répondre. Toute
-   information présente dans le brief DOIT être utilisée (ne mets pas [À COMPLÉTER]
-   si l'information est dans le brief, même formulée différemment).
-
-6. ⚠️ INTERDIT — N'UTILISE JAMAIS le format "Option 1 : ... / Option 2 : ..." dans
-   aucune balise. Les balises sont déjà différenciées par option dans le template.
-   Chaque balise doit avoir UNE SEULE valeur directement utilisable.
-
-7. OPTIONS 2 ET 3 : si le brief ne donne qu'une seule option financière, propose des
-   variantes cohérentes pour opt2/opt3 (volumes légèrement différents). Si aucune donnée
-   financière n'est disponible → [À COMPLÉTER].
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RÈGLES :
+1. Format strict : {{{{nom_balise}}}}: Contenu — une balise par ligne, aucun markdown, aucune explication.
+2. FRAGMENT = fragment de phrase, sans majuscule initiale, sans point final.
+3. Réponds exclusivement en français professionnel.
+4. ANTI-HALLUCINATION (règle la plus importante) : si l'info n'est PAS dans le brief, écris EXACTEMENT "[À COMPLÉTER]" — n'invente rien. Exceptions : concu_direct/concu_indi → toujours citer des noms réels du secteur même si absents du brief.
+5. Lis tout le brief : toute info présente DOIT être utilisée (même reformulée), ne mets pas [À COMPLÉTER] si elle existe.
+6. N'utilise JAMAIS "Option 1 : ... / Option 2 : ..." dans une balise — une seule valeur directe par balise.
+7. Options 2/3 : si le brief ne donne qu'une option financière, propose des variantes cohérentes (volumes légèrement différents). Si aucune donnée financière : [À COMPLÉTER].
 
 BALISES À REMPLIR :
 {chr(10).join(lines)}
@@ -581,7 +560,7 @@ BRIEF :
         model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1,
-        max_tokens=4000,
+        max_tokens=3200,
     )
     raw = resp.choices[0].message.content
 
@@ -1114,7 +1093,7 @@ def extraire_balises_template(template_path: str) -> set:
     return tags
 
 
-def extraire_contextes_balises(template_path: str, fenetre: int = 5) -> dict:
+def extraire_contextes_balises(template_path: str, fenetre: int = 3) -> dict:
     """
     Pour chaque balise du template, extrait quelques mots avant/après sa
     première occurrence — donné à l'IA pour produire des fragments cohérents.
