@@ -1450,6 +1450,27 @@ def detecter_incoherences_det_texte(det1: dict, resume: str) -> list:
 
 
 # ============================================================
+# === LIMITE DE TAILLE DU RÉSUMÉ ==============================
+# ============================================================
+
+# Un résumé plus long que ceci (~1000-1100 mots) peut, à lui seul, dépasser
+# la limite de tokens/minute du modèle Groq — quel que soit le découpage des
+# balises, puisque le résumé est intégralement dupliqué dans chaque appel IA.
+MAX_RESUME_CHARS = 6000
+
+
+def tronquer_resume(resume: str, max_chars: int = MAX_RESUME_CHARS) -> tuple:
+    """
+    Tronque le résumé s'il dépasse max_chars, en coupant proprement sur un
+    mot entier. Retourne (resume_utilise, a_ete_tronque).
+    """
+    if not resume or len(resume) <= max_chars:
+        return resume, False
+    tronque = resume[:max_chars].rsplit(" ", 1)[0].rstrip()
+    return tronque, True
+
+
+# ============================================================
 # === FONCTION PRINCIPALE ====================================
 # ============================================================
 
@@ -1471,11 +1492,15 @@ def generer_propale(
         progress_callback: callable(step: int, total: int, message: str)
 
     Returns:
-        (pptx_bytes, all_replacements, missed_tags, nom_client, incoherences_det)
+        (pptx_bytes, all_replacements, missed_tags, nom_client, incoherences_det, resume_tronque)
     """
     def progress(step, total, msg):
         if progress_callback:
             progress_callback(step, total, msg)
+
+    # Un résumé trop long peut, à lui seul, dépasser la limite de tokens/minute
+    # de l'IA (il est dupliqué dans chaque appel) — on le borne à une taille sûre.
+    resume, resume_tronque = tronquer_resume(resume)
 
     progress(0, 5, "Lecture des DETs...")
 
@@ -1626,7 +1651,7 @@ def generer_propale(
     incoherences_det = detecter_incoherences_det_texte(det1, resume)
 
     progress(5, 5, "Terminé !")
-    return pptx_bytes, all_replacements, missed_tags, nom_client, incoherences_det
+    return pptx_bytes, all_replacements, missed_tags, nom_client, incoherences_det, resume_tronque
 
 
 # ============================================================

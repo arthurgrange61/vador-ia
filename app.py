@@ -712,7 +712,7 @@ def lancer_generation(resume: str):
         status_text.caption(f"⏳ {msg}")
 
     try:
-        pptx_bytes, all_replacements, missed_tags, nom_client, incoherences_det = generer_propale(
+        pptx_bytes, all_replacements, missed_tags, nom_client, incoherences_det, resume_tronque = generer_propale(
             resume=resume,
             det_paths=det_paths,
             api_key=api_key,
@@ -753,6 +753,7 @@ def lancer_generation(resume: str):
             "timestamp":        timestamp,
             "nom_fichier":      f"Propale_{nom_client.replace(' ', '_')}_{timestamp}.pptx",
             "incoherences_det": incoherences_det,
+            "resume_tronque":   resume_tronque,
         }
         st.session_state.images           = images
         st.session_state.slide_idx        = 0
@@ -993,6 +994,15 @@ else:
     result = st.session_state.result
     with chat_col:
         st.success(f"✅ {result['nb_balises']} balises remplies")
+
+        if result.get("resume_tronque"):
+            st.warning(
+                "⚠️ **Texte de mission tronqué** — votre résumé était trop long "
+                "et a été raccourci automatiquement pour respecter la limite de "
+                "l'IA. Pour tout prendre en compte, privilégiez un résumé plus "
+                "concis ou utilisez le questionnaire guidé pour structurer les "
+                "informations détaillées."
+            )
 
         incoherences = result.get("incoherences_det") or []
         if incoherences:
