@@ -522,15 +522,32 @@ def completer_montants_en_lettres(replacements: dict):
             replacements[ltr_tag] = montant_en_lettres(num)
 
 
-def appeler_ia(brief: str, api_key: str, model: str = GROQ_MODEL, contextes: dict = None) -> dict:
-    # NOTE : les annotations de contexte d'insertion ([Contexte: ...]) ont été
-    # retirées du prompt pour respecter la limite TPM du modèle Groq actuel
-    # (8000 tokens/minute, contre 12000 pour l'ancien modèle) — les prompts de
-    # chaque balise-fragment précisent déjà explicitement où ils s'insèrent
-    # (« s'insère après X », « FRAGMENT après Y »...), ce qui couvre le même
-    # besoin sans consommer de tokens supplémentaires.
-    balises = get_balises_effectives()
-    lines = [f"{{{{{k}}}}}: {v}" for k, v in balises.items()]
+def _decouper_balises_en_groupes(balises: dict, n_groups: int = 2) -> list:
+    """
+    Répartit les balises en n_groups lots de taille (en caractères) équilibrée,
+    en conservant l'ordre. Permet d'appeler l'IA plusieurs fois avec un prompt
+    plus petit à chaque fois, au lieu d'un seul mega-prompt qui peut dépasser
+    la limite de tokens/minute du modèle selon la longueur du brief.
+    """
+    items = list(balises.items())
+    total_chars = sum(len(v) for _, v in items)
+    cible = max(1, total_chars / n_groups)
+
+    groupes, courant, taille_courante = [], [], 0
+    for k, v in items:
+        courant.append((k, v))
+        taille_courante += len(v)
+        if taille_courante >= cible and len(groupes) < n_groups - 1:
+            groupes.append(dict(courant))
+            courant, taille_courante = [], 0
+    if courant:
+        groupes.append(dict(courant))
+    return groupes
+
+
+def _appeler_ia_groupe(brief: str, balises_groupe: dict, api_key: str, model: str) -> dict:
+    """Appelle l'IA pour UN groupe de balises et parse sa réponse."""
+    lines = [f"{{{{{k}}}}}: {v}" for k, v in balises_groupe.items()]
 
     prompt = f"""Tu es un consultant expert chez Neoma Conseil, spécialisé dans les propositions commerciales.
 Génère le contenu de chaque balise à partir du brief fourni.
@@ -556,12 +573,12 @@ BRIEF :
         model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1,
-        max_tokens=2600,  # marge sous la limite TPM 8000 du modèle Groq actuel
+        max_tokens=1800,
     )
     raw = resp.choices[0].message.content
 
     replacements = {}
-    for key in balises:
+    for key in balises_groupe:
         tag = "{{" + key + "}}"
         pattern = re.escape(tag) + r"\s*:\s*(.+?)(?=\n\s*\{\{|\Z)"
         m = re.search(pattern, raw, re.DOTALL)
@@ -574,6 +591,24 @@ BRIEF :
             m2 = re.search(pattern2, raw)
             if m2:
                 replacements[tag] = re.sub(r'\*+', '', m2.group(1).strip())
+
+    return replacements
+
+
+def appeler_ia(brief: str, api_key: str, model: str = GROQ_MODEL, contextes: dict = None) -> dict:
+    """
+    Génère le contenu de toutes les balises IA. La requête est découpée en
+    2 appels plus petits (au lieu d'un seul mega-prompt) : chaque appel reste
+    largement sous la limite TPM du modèle Groq quelle que soit la longueur
+    du brief (résumé libre ou questionnaire complet), là où un unique gros
+    prompt pouvait dépasser cette limite selon la verbosité de l'utilisateur.
+    """
+    balises = get_balises_effectives()
+    groupes = _decouper_balises_en_groupes(balises, n_groups=2)
+
+    replacements = {}
+    for groupe in groupes:
+        replacements.update(_appeler_ia_groupe(brief, groupe, api_key, model))
 
     return replacements
 
