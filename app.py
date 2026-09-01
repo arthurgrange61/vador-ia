@@ -459,6 +459,13 @@ with st.sidebar:
             size_kb = default_tpl.stat().st_size // 1024
             mtime   = datetime.fromtimestamp(default_tpl.stat().st_mtime).strftime("%d/%m/%Y %H:%M")
             st.caption(f"**{default_tpl.name}** · {size_kb} Ko · modifié le {mtime}")
+            st.download_button(
+                "⬇️ Télécharger le template actif",
+                data=default_tpl.read_bytes(),
+                file_name=default_tpl.name,
+                mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                use_container_width=True,
+            )
         new_tpl = st.file_uploader(
             "Remplacer le template", type=["pptx"], key="template_upload",
             help="Le fichier est sauvegardé sur disque et reste actif après redémarrage."
