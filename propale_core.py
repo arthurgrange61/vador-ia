@@ -18,7 +18,7 @@ from openai import OpenAI
 # === CONFIGURATION ==========================================
 # ============================================================
 
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "qwen/qwen3.8-27b"  # llama-3.3-70b-versatile retiré du catalogue Groq
 
 CUSTOM_PROMPTS_PATH = os.path.join(os.path.dirname(__file__), "custom_prompts.json")
 
@@ -314,15 +314,14 @@ def construire_brief_depuis_resume(resume: str, dets: list) -> str:
                 f"Phase conclusions & recommandations : {int(phases['analyse_reco']['nb_responsables'])} intervenant(s)"
             )
 
+        # NOTE : nom de l'étude, type d'étude, entreprise cliente, contact
+        # client, chef de projet et validateur sont volontairement EXCLUS de
+        # ce résumé envoyé à l'IA — ces 6 informations ne doivent venir QUE
+        # du résumé/texte de mission ci-dessus, jamais du DET (même en lecture
+        # indirecte par l'IA). Voir detecter_incoherences_det_texte().
         brief += f"""
 DONNÉES DET — OPTION {i} :
-Nom de l'étude        : {data['nom_etude'] or 'Non renseigné'}
-Type d'étude          : {data['type_etude'] or 'Non renseigné'}
-Entreprise cliente    : {data['nom_entreprise'] or 'Non renseigné'}
 Taille entreprise     : {data['taille_entreprise'] or 'Non renseigné'}
-Contact client        : {data['nom_client'] or 'Non renseigné'}
-Chef de projet        : {data['chef_projet_1'] or 'Non renseigné'}
-Chef de projet 2      : {data['chef_projet_2'] or 'Aucun'}
 Durée                 : {data['duree_semaines']} semaines
 Nb questionnaires 1   : {data['nb_qs_phase1'] or 'Non renseigné'}
 Nb questionnaires 2   : {data['nb_qs_phase2'] or 'Non renseigné'}
@@ -524,17 +523,14 @@ def completer_montants_en_lettres(replacements: dict):
 
 
 def appeler_ia(brief: str, api_key: str, model: str = GROQ_MODEL, contextes: dict = None) -> dict:
+    # NOTE : les annotations de contexte d'insertion ([Contexte: ...]) ont été
+    # retirées du prompt pour respecter la limite TPM du modèle Groq actuel
+    # (8000 tokens/minute, contre 12000 pour l'ancien modèle) — les prompts de
+    # chaque balise-fragment précisent déjà explicitement où ils s'insèrent
+    # (« s'insère après X », « FRAGMENT après Y »...), ce qui couvre le même
+    # besoin sans consommer de tokens supplémentaires.
     balises = get_balises_effectives()
-    contextes = contextes or {}
-    lines = []
-    for k, v in balises.items():
-        tag  = "{{" + k + "}}"
-        line = f"{tag}: {v}"
-        # Pour les fragments, donner le contexte d'insertion réel du template
-        ctx = contextes.get(tag)
-        if ctx and "FRAGMENT" in v:
-            line += f" [Contexte: {ctx}]"
-        lines.append(line)
+    lines = [f"{{{{{k}}}}}: {v}" for k, v in balises.items()]
 
     prompt = f"""Tu es un consultant expert chez Neoma Conseil, spécialisé dans les propositions commerciales.
 Génère le contenu de chaque balise à partir du brief fourni.
@@ -560,7 +556,7 @@ BRIEF :
         model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1,
-        max_tokens=3200,
+        max_tokens=2600,  # marge sous la limite TPM 8000 du modèle Groq actuel
     )
     raw = resp.choices[0].message.content
 
@@ -591,16 +587,12 @@ def construire_replacements_directs(data: dict, suffix: str = "") -> dict:
     s = suffix
 
     if not suffix:
-        if data["nom_entreprise"]:
-            r["{{nom_entreprise}}"]         = data["nom_entreprise"]
-        if data["nom_etude"]:
-            r["{{titre_etude}}"]            = data["nom_etude"]
-        if data["nom_client"]:
-            r["{{nom_representant}}"]       = data["nom_client"]
-        if data["chef_projet_1"]:
-            r["{{etablisseur_je}}"]         = data["chef_projet_1"]
-        if data["chef_projet_2"]:
-            r["{{validateur_je}}"]          = data["chef_projet_2"]
+        # NOTE : nom de l'étude, type d'étude, nom de l'entreprise, contact
+        # client, chef de projet et validateur ne sont plus repris depuis le
+        # DET — ces 6 informations viennent désormais uniquement du texte de
+        # mission (résumé libre ou questionnaire), ou restent [À COMPLÉTER]
+        # si absentes. Voir detecter_incoherences_det_texte() plus bas pour
+        # la vérification de cohérence entre le DET et le texte de mission.
         if data["nb_intervenants_total"] > 0:
             nb = str(data["nb_intervenants_total"])
             r["{{nb_intervenants}}"]        = nb
@@ -619,8 +611,6 @@ def construire_replacements_directs(data: dict, suffix: str = "") -> dict:
             if data["chef_projet_2"]:
                 intervenants.append(data["chef_projet_2"].split()[0])
             r["{{intervenant}}"] = " et ".join(intervenants)
-        if data["type_etude"]:
-            r["{{type_rapport}}"]           = data["type_etude"].lower()
 
     SUFFIXE_TAG = {"": "un", "_opt2": "de", "_opt3": "trois"}
     st = SUFFIXE_TAG.get(s, "un")
@@ -1375,6 +1365,56 @@ def renommer_tags_dans_slides(work_dir: str):
 
 
 # ============================================================
+# === COHÉRENCE DET / TEXTE DE MISSION ========================
+# ============================================================
+
+# Les 6 champs d'identité que le DET ne remplit plus directement (voir
+# construire_replacements_directs) : on vérifie ici qu'ils sont bien
+# cohérents avec le texte de mission, sans jamais les y substituer.
+CHAMPS_IDENTITE_DET = [
+    ("Nom de l'étude",         "nom_etude"),
+    ("Type d'étude",           "type_etude"),
+    ("Nom de l'entreprise",    "nom_entreprise"),
+    ("Contact / représentant", "nom_client"),
+    ("Chef de projet",         "chef_projet_1"),
+    ("Validateur",             "chef_projet_2"),
+]
+
+
+def detecter_incoherences_det_texte(det1: dict, resume: str) -> list:
+    """
+    Compare les 6 informations d'identité présentes dans le DET (option 1)
+    au texte de mission (résumé libre ou brief généré depuis le
+    questionnaire). Si une valeur du DET n'apparaît nulle part — même
+    partiellement — dans le texte, elle est signalée comme à vérifier avant
+    l'envoi de la propale (nom différent, information manquante, etc.).
+
+    Ne modifie jamais les balises : sert uniquement à alerter l'utilisateur.
+    """
+    if not det1 or not resume:
+        return []
+
+    texte_norm = re.sub(r'\s+', ' ', resume).casefold()
+    incoherences = []
+
+    for label, champ in CHAMPS_IDENTITE_DET:
+        val = str(det1.get(champ, "") or "").strip()
+        if not val:
+            continue
+        val_norm = re.sub(r'\s+', ' ', val).casefold()
+        if val_norm in texte_norm:
+            continue
+        # Tolérance : un seul mot significatif retrouvé dans le texte suffit
+        # (ex. le texte cite juste le nom de famille ou une abréviation).
+        mots = [m for m in val_norm.split() if len(m) > 2]
+        if mots and any(m in texte_norm for m in mots):
+            continue
+        incoherences.append({"champ": label, "valeur_excel": val})
+
+    return incoherences
+
+
+# ============================================================
 # === FONCTION PRINCIPALE ====================================
 # ============================================================
 
@@ -1396,7 +1436,7 @@ def generer_propale(
         progress_callback: callable(step: int, total: int, message: str)
 
     Returns:
-        (pptx_bytes, all_replacements, missed_tags, nom_client)
+        (pptx_bytes, all_replacements, missed_tags, nom_client, incoherences_det)
     """
     def progress(step, total, msg):
         if progress_callback:
@@ -1548,8 +1588,10 @@ def generer_propale(
         mots = re.findall(r'\w+', resume)[:3]
         nom_client = " ".join(mots) if mots else "client"
 
+    incoherences_det = detecter_incoherences_det_texte(det1, resume)
+
     progress(5, 5, "Terminé !")
-    return pptx_bytes, all_replacements, missed_tags, nom_client
+    return pptx_bytes, all_replacements, missed_tags, nom_client, incoherences_det
 
 
 # ============================================================

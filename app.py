@@ -705,7 +705,7 @@ def lancer_generation(resume: str):
         status_text.caption(f"⏳ {msg}")
 
     try:
-        pptx_bytes, all_replacements, missed_tags, nom_client = generer_propale(
+        pptx_bytes, all_replacements, missed_tags, nom_client, incoherences_det = generer_propale(
             resume=resume,
             det_paths=det_paths,
             api_key=api_key,
@@ -739,12 +739,13 @@ def lancer_generation(resume: str):
 
         timestamp = datetime.now().strftime("%Y-%m-%d_%Hh%M")
         st.session_state.result = {
-            "pptx_bytes":  pptx_download,
-            "missed_tags": missed_tags,
-            "nom_client":  nom_client,
-            "nb_balises":  len(all_replacements),
-            "timestamp":   timestamp,
-            "nom_fichier": f"Propale_{nom_client.replace(' ', '_')}_{timestamp}.pptx",
+            "pptx_bytes":       pptx_download,
+            "missed_tags":      missed_tags,
+            "nom_client":       nom_client,
+            "nb_balises":       len(all_replacements),
+            "timestamp":        timestamp,
+            "nom_fichier":      f"Propale_{nom_client.replace(' ', '_')}_{timestamp}.pptx",
+            "incoherences_det": incoherences_det,
         }
         st.session_state.images           = images
         st.session_state.slide_idx        = 0
@@ -985,6 +986,20 @@ else:
     result = st.session_state.result
     with chat_col:
         st.success(f"✅ {result['nb_balises']} balises remplies")
+
+        incoherences = result.get("incoherences_det") or []
+        if incoherences:
+            lignes = "\n".join(
+                f"- **{item['champ']}** : le DET indique *« {item['valeur_excel']} »*, "
+                f"introuvable dans le texte de mission"
+                for item in incoherences
+            )
+            st.warning(
+                "⚠️ **Informations du DET à vérifier** — non retrouvées dans le texte "
+                "de mission (elles ne sont plus reprises automatiquement dans la "
+                "propale, seul le texte de mission est utilisé) :\n\n" + lignes
+            )
+
         if st.button("🔄 Nouvelle propale", use_container_width=True):
             for k in ["resume", "result", "images", "slide_idx", "history_stack"]:
                 st.session_state[k] = None if k != "slide_idx" else 0
