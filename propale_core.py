@@ -371,6 +371,7 @@ BALISES_IA = {
     "cible":                "FRAGMENT. Groupe nominal décrivant la cible visée (avec article). Ex: 'les ménages de la région Normandie'.",
     "zone_action":          "FRAGMENT. Zone géographique de l'étude. Ex: 'la région Île-de-France'.",
     "zone_passation":       "FRAGMENT. Zone de passation des questionnaires.",
+    "mode_passa":           "Écris EXACTEMENT 'en présentiel' si le mode de passation indiqué dans le brief est présentiel (ou mixte à dominante présentielle), ou EXACTEMENT 'par téléphone' s'il est par téléphone (ou mixte à dominante téléphonique). Si le brief indique un mode en ligne ou ne précise rien, choisis la formulation la plus proche du mode principal cité. Réponds uniquement par l'une de ces deux formulations, rien d'autre.",
     "lieu_client":          "FRAGMENT. Lieu où se trouve la clientèle cible.",
     "selection_region":     "1 phrase justifiant le choix de la zone géographique.",
     "justif_cible":         "1 phrase justifiant la pertinence de la cible choisie. Compléter la phrase : Le listing veillera à cibler",
