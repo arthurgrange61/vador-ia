@@ -18,11 +18,7 @@ from openai import OpenAI
 # === CONFIGURATION ==========================================
 # ============================================================
 
-GROQ_MODEL = "openai/gpt-oss-20b"  # llama-3.3-70b-versatile retiré du catalogue Groq
-# NOTE : qwen/qwen3.8-27b a un plafond de sortie (OTPM) de 1000 tokens/minute
-# sur ce compte — trop bas pour nos appels (~1000-1400 tokens de réponse par
-# groupe de balises). gpt-oss-20b n'a pas cette limite. reasoning_effort="low"
-# évite que le modèle consomme des tokens de "raisonnement" avant sa réponse.
+GROQ_MODEL = "qwen/qwen3.8-27b"  # llama-3.3-70b-versatile retiré du catalogue Groq
 
 CUSTOM_PROMPTS_PATH = os.path.join(os.path.dirname(__file__), "custom_prompts.json")
 
