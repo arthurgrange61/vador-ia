@@ -417,6 +417,7 @@ BALISES_IA = {
     "nb_ville":             "FRAGMENT. Nombre de villes ou zones géographiques sélectionnées pour la passation. Juste le chiffre, sans texte autour (ex: '3'). Déduis-le de la zone géographique et du volume de questionnaires du brief.",
     "nom_entreprise":       "Nom de l'entreprise cliente.",
     "nom_representant":     "Prénom et nom du représentant client.",
+    "mme_msr":              "Écris EXACTEMENT 'Madame' ou 'Monsieur' selon le genre déduit du prénom du représentant client (champ 'Contact client' du brief). Base-toi sur l'usage le plus courant du prénom en France. Si le prénom est absent, ambigu (mixte) ou que seul un nom de famille est donné, écris [À COMPLÉTER]. Réponds uniquement par ce mot, rien d'autre.",
     "etablisseur_je":       "Prénom et nom du chef de projet Neoma Conseil.",
     "validateur_je":        "Prénom et nom du validateur Neoma Conseil.",
     "intervenant":          "Prénom(s) des intervenants.",
