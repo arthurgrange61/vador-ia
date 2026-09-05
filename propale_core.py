@@ -18,7 +18,11 @@ from openai import OpenAI
 # === CONFIGURATION ==========================================
 # ============================================================
 
-GROQ_MODEL = "qwen/qwen3.8-27b"  # llama-3.3-70b-versatile retiré du catalogue Groq
+GROQ_MODEL = "openai/gpt-oss-20b"  # llama-3.3-70b-versatile retiré du catalogue Groq
+# NOTE : qwen/qwen3.8-27b a un plafond de sortie (OTPM) de 1000 tokens/minute
+# sur ce compte — trop bas pour nos appels (~1000-1400 tokens de réponse par
+# groupe de balises). gpt-oss-20b n'a pas cette limite. reasoning_effort="low"
+# évite que le modèle consomme des tokens de "raisonnement" avant sa réponse.
 
 CUSTOM_PROMPTS_PATH = os.path.join(os.path.dirname(__file__), "custom_prompts.json")
 
@@ -392,6 +396,10 @@ BALISES_IA = {
     "listing":              "Suit 'Neoma Conseil s'engage à réaliser un listing quantitatif et qualitatif d'entreprises'. Précise le type d'entreprises ciblées (secteur/besoin du client), intéressées par le produit/service. Ex: 'spécialisées dans l'immobilier résidentiel, susceptibles de recourir à une solution de création de vidéos'. Sans placeholder.",
     "livrable":             "2 éléments MAX du rapport final, séparés par \\n, sans tiret/puce/numéro. Phrase nominale courte chacun. Ex: 'Analyse documentaire du secteur\\nRésultats et recommandations stratégiques'. Adapte au type d'étude.",
     "validite_date":        "Date de validité (3 mois après aujourd'hui). Format : JJ mois AAAA.",
+    "cat1":                 "FRAGMENT. Nom court de la 1ère catégorie de segmentation de l'échantillon (ex: tranche d'âge, genre, profil). UNIQUEMENT si le brief précise EXPLICITEMENT une segmentation par catégories nommées. N'invente JAMAIS de catégorie absente du brief : si rien n'est précisé, écris [À COMPLÉTER].",
+    "cat2":                 "FRAGMENT. Nom court de la 2ème catégorie de segmentation, cohérente avec cat1/cat3/cat4. UNIQUEMENT si le brief la précise explicitement, sinon [À COMPLÉTER]. N'invente jamais.",
+    "cat3":                 "FRAGMENT. Nom court de la 3ème catégorie de segmentation, cohérente avec cat1/cat2/cat4. UNIQUEMENT si le brief la précise explicitement, sinon [À COMPLÉTER]. N'invente jamais.",
+    "cat4":                 "FRAGMENT. Nom court de la 4ème catégorie de segmentation, cohérente avec cat1/cat2/cat3. UNIQUEMENT si le brief la précise explicitement, sinon [À COMPLÉTER]. N'invente jamais.",
     "quota_cat1_opt1":      "FRAGMENT. Quota catégorie 1 option 1. Juste le chiffre.",
     "quota_cat1_opt2":      "FRAGMENT. Quota catégorie 1 option 2. Juste le chiffre.",
     "quota_cat1_opt3":      "FRAGMENT. Quota catégorie 1 option 3. Juste le chiffre.",
@@ -524,6 +532,29 @@ def completer_montants_en_lettres(replacements: dict):
             replacements[ltr_tag] = montant_en_lettres(num)
 
 
+def completer_totaux_quotas(replacements: dict):
+    """
+    Calcule {{total_optN}} comme somme des 4 quotas de catégorie de cette
+    option (quota_cat1_optN + ... + quota_cat4_optN). Calcul déterministe en
+    Python, jamais par l'IA. Si l'une des 4 valeurs est manquante ou
+    [À COMPLÉTER], le total reste [À COMPLÉTER] — on ne calcule jamais un
+    total partiel ou approximatif.
+    """
+    for opt in ("opt1", "opt2", "opt3"):
+        total_tag = "{{total_" + opt + "}}"
+        valeurs = []
+        complet = True
+        for cat in range(1, 5):
+            tag = "{{quota_cat%d_%s}}" % (cat, opt)
+            val = str(replacements.get(tag, "")).strip()
+            m = re.fullmatch(r'-?\d+', val)
+            if not m:
+                complet = False
+                break
+            valeurs.append(int(m.group()))
+        replacements[total_tag] = str(sum(valeurs)) if complet else "[À COMPLÉTER]"
+
+
 def _decouper_balises_en_groupes(balises: dict, n_groups: int = 2) -> list:
     """
     Répartit les balises en n_groups lots de taille (en caractères) équilibrée,
@@ -576,6 +607,7 @@ BRIEF :
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1,
         max_tokens=1800,
+        reasoning_effort="low",
     )
     raw = resp.choices[0].message.content
 
@@ -1321,6 +1353,7 @@ Donne UNIQUEMENT la nouvelle valeur pour ce champ (sans explication, sans guille
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.0,
                 max_tokens=300,
+                reasoning_effort="low",
             )
             new_val = resp.choices[0].message.content.strip()
             return {"tag": tag, "new_value": new_val, "error": None}
@@ -1357,6 +1390,7 @@ ERREUR: explication courte en français"""
         messages=[{"role": "user", "content": prompt}],
         temperature=0.0,
         max_tokens=150,
+        reasoning_effort="low",
     )
     raw = resp.choices[0].message.content.strip()
 
@@ -1596,6 +1630,9 @@ def generer_propale(
 
     # Compléter les montants en toutes lettres ({{...ltr}}) depuis les montants numériques
     completer_montants_en_lettres(all_replacements)
+
+    # Calculer les totaux de quotas (somme déterministe, jamais par l'IA)
+    completer_totaux_quotas(all_replacements)
 
     # ── Filet de sécurité : AUCUNE balise brute ne doit rester dans le rendu ──
     # Toute balise du template non couverte reçoit [À COMPLÉTER] (colorée + numérotée,
